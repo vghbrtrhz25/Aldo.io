@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestion des Couvertures pour Aldo</title>
+    <meta name="description" content="Application pour déterminer la couverture adaptée à votre cheval selon la température">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -31,23 +32,33 @@
             --border-radius: 16px;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+
+        /* Reset et styles de base */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--gradient-bg);
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
             padding: 10px;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
+
+        /* En-tête */
         header {
             background: var(--gradient-primary);
             color: white;
@@ -59,10 +70,12 @@
             animation: slideDown 0.6s ease-out;
             position: relative;
         }
+
         @keyframes slideDown {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
         h1 {
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
@@ -72,12 +85,14 @@
             justify-content: center;
             gap: 12px;
         }
+
         .subtitle {
             font-size: 1rem;
             opacity: 0.9;
             margin-top: 0.8rem;
             font-weight: 400;
         }
+
         .settings-btn {
             position: absolute;
             top: 1.5rem;
@@ -94,10 +109,15 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .settings-btn:hover {
+
+        .settings-btn:hover,
+        .settings-btn:focus {
             background: rgba(255, 255, 255, 0.3);
             transform: rotate(30deg);
+            outline: none;
         }
+
+        /* Section de saisie */
         .input-section {
             background-color: white;
             padding: 1.5rem;
@@ -107,16 +127,20 @@
             transition: var(--transition);
             animation: fadeIn 0.6s ease-out 0.2s both;
         }
+
         .input-section:hover {
             box-shadow: var(--shadow-md);
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
+
         label {
             display: block;
             margin-bottom: 0.8rem;
@@ -127,9 +151,11 @@
             align-items: center;
             gap: 10px;
         }
+
         .input-with-icon {
             position: relative;
         }
+
         .input-with-icon i {
             position: absolute;
             left: 15px;
@@ -138,7 +164,9 @@
             color: var(--gray);
             z-index: 1;
         }
-        input[type="number"], input[type="text"] {
+
+        input[type="number"], 
+        input[type="text"] {
             width: 100%;
             padding: 16px 16px 16px 48px;
             border: 2px solid #e5e7eb;
@@ -149,23 +177,28 @@
             -moz-appearance: textfield;
             transition: var(--transition);
         }
-        input[type="number"]:focus, input[type="text"]:focus {
+
+        input[type="number"]:focus, 
+        input[type="text"]:focus {
             outline: none;
             border-color: var(--primary);
             background-color: white;
             box-shadow: 0 0 0 3px rgba(46, 90, 66, 0.1);
         }
+
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+
         .radio-group {
             display: flex;
             gap: 12px;
             margin-top: 0.8rem;
             flex-wrap: wrap;
         }
+
         .radio-option {
             display: flex;
             align-items: center;
@@ -179,19 +212,24 @@
             font-size: 1rem;
             transition: var(--transition);
         }
+
         .radio-option:hover {
             border-color: var(--primary-light);
             transform: translateY(-2px);
         }
+
         .radio-option input {
             margin-right: 10px;
             transform: scale(1.3);
         }
+
         .radio-option.selected {
             border-color: var(--primary);
             background-color: rgba(46, 90, 66, 0.08);
             box-shadow: 0 4px 8px rgba(46, 90, 66, 0.1);
         }
+
+        /* Boutons */
         .btn {
             background: var(--gradient-primary);
             color: white;
@@ -214,6 +252,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .btn::after {
             content: '';
             position: absolute;
@@ -227,9 +266,11 @@
             transform: scale(1, 1) translate(-50%);
             transform-origin: 50% 50%;
         }
+
         .btn:focus:not(:active)::after {
             animation: ripple 1s ease-out;
         }
+
         @keyframes ripple {
             0% {
                 transform: scale(0, 0);
@@ -240,35 +281,39 @@
                 opacity: 0;
             }
         }
-        .btn:hover {
+
+        .btn:hover,
+        .btn:focus {
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
+            outline: none;
         }
+
         .btn:active {
             transform: translateY(-1px);
         }
+
         .btn-meteo {
             background: var(--gradient-accent);
         }
+
         .btn-outline {
             background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
         }
-        .btn-outline:hover {
+
+        .btn-outline:hover,
+        .btn-outline:focus {
             background: var(--primary);
             color: white;
         }
+
         .btn-settings {
             background: var(--gradient-secondary);
         }
-        footer {
-            text-align: center;
-            padding: 1.5rem 0;
-            color: var(--gray);
-            font-size: 0.9rem;
-            animation: fadeIn 0.6s ease-out 0.4s both;
-        }
+
+        /* Section météo */
         .meteo-section {
             background-color: rgba(93, 138, 168, 0.06);
             border: 2px solid rgba(93, 138, 168, 0.2);
@@ -278,10 +323,12 @@
             text-align: center;
             transition: var(--transition);
         }
+
         .meteo-section:hover {
             background-color: rgba(93, 138, 168, 0.1);
             border-color: rgba(93, 138, 168, 0.3);
         }
+
         .meteo-title {
             font-weight: 600;
             color: var(--accent);
@@ -292,6 +339,7 @@
             gap: 10px;
             font-size: 1.1rem;
         }
+
         .meteo-description {
             color: var(--dark);
             font-size: 0.95rem;
@@ -299,7 +347,16 @@
             line-height: 1.5;
         }
 
-        /* Popup Modal */
+        /* Pied de page */
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        /* Modales */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -315,11 +372,14 @@
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
             backdrop-filter: blur(4px);
+            padding: 20px;
         }
+
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
+
         .modal {
             background: white;
             border-radius: var(--border-radius);
@@ -332,9 +392,11 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
+
         .modal-overlay.active .modal {
             transform: translateY(0) scale(1);
         }
+
         .modal-header {
             padding: 1.5rem;
             background: var(--gradient-primary);
@@ -344,6 +406,7 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -351,6 +414,7 @@
             align-items: center;
             gap: 10px;
         }
+
         .close-modal {
             background: none;
             border: none;
@@ -365,23 +429,31 @@
             border-radius: 50%;
             transition: var(--transition);
         }
-        .close-modal:hover {
+
+        .close-modal:hover,
+        .close-modal:focus {
             background: rgba(255,255,255,0.2);
             transform: rotate(90deg);
+            outline: none;
         }
+
         .modal-body {
             padding: 1.5rem;
         }
+
+        /* Formulaire de paramètres */
         .settings-form {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
+
         .settings-group {
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
         }
+
         .settings-label {
             font-weight: 600;
             color: var(--primary);
@@ -389,6 +461,8 @@
             align-items: center;
             gap: 10px;
         }
+
+        /* Affichage des résultats */
         .temperature-display {
             font-size: 3.2rem;
             font-weight: 800;
@@ -399,11 +473,13 @@
             color: transparent;
             animation: pulse 2s infinite;
         }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+
         .recommendation {
             font-size: 1.6rem;
             margin-bottom: 1rem;
@@ -414,6 +490,7 @@
             gap: 12px;
             animation: fadeIn 0.6s ease-out 0.3s both;
         }
+
         .details {
             color: var(--gray);
             margin-bottom: 1rem;
@@ -421,6 +498,7 @@
             line-height: 1.6;
             animation: fadeIn 0.6s ease-out 0.4s both;
         }
+
         .info {
             color: var(--primary);
             font-weight: 600;
@@ -432,13 +510,14 @@
             animation: fadeIn 0.6s ease-out 0.5s both;
         }
 
-        /* Guide spécifique */
+        /* Guide */
         .guide-grid {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             text-align: left;
         }
+
         .guide-card {
             border-radius: 16px;
             overflow: hidden;
@@ -446,10 +525,12 @@
             transition: var(--transition);
             animation: fadeIn 0.6s ease-out;
         }
+
         .guide-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-md);
         }
+
         .guide-header {
             background: var(--gradient-primary);
             color: white;
@@ -460,9 +541,11 @@
             align-items: center;
             gap: 10px;
         }
+
         .guide-body {
             padding: 1.2rem;
         }
+
         .temperature-range {
             display: flex;
             justify-content: space-between;
@@ -470,15 +553,18 @@
             border-bottom: 1px solid #eee;
             transition: var(--transition);
         }
+
         .temperature-range:hover {
             background-color: rgba(46, 90, 66, 0.03);
             padding-left: 8px;
             padding-right: 8px;
             border-radius: 8px;
         }
+
         .temperature-range:last-child {
             border-bottom: none;
         }
+
         .range {
             font-weight: 600;
             color: var(--primary);
@@ -487,11 +573,14 @@
             gap: 8px;
             font-size: 0.95rem;
         }
+
         .recommendation-text {
             color: var(--dark);
             font-weight: 500;
             font-size: 0.95rem;
         }
+
+        /* Classes de couleur pour les recommandations */
         .no-blanket { color: var(--success); font-weight: 600; }
         .light-blanket { color: var(--warning); }
         .medium-blanket { color: var(--primary); }
@@ -510,15 +599,28 @@
             background-color: rgba(46, 90, 66, 0.1);
             color: var(--primary);
         }
+
         .tonte-indicator.tondu {
             background-color: rgba(46, 90, 66, 0.15);
             color: var(--primary);
         }
+
         .tonte-indicator.non-tondu {
             background-color: rgba(201, 169, 126, 0.15);
             color: #8a6d3b;
         }
 
+        /* Message d'erreur */
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Responsive */
         @media (min-width: 768px) {
             body { padding: 20px; }
             h1 { font-size: 2.4rem; }
@@ -530,58 +632,75 @@
                 flex: 1;
             }
         }
+
+        /* Amélioration de l'accessibilité */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1><i class="fas fa-horse"></i> Couvertures pour <span id="horse-name">Aldo</span></h1>
+            <h1><i class="fas fa-horse" aria-hidden="true"></i> Couvertures pour <span id="horse-name">Aldo</span></h1>
             <p class="subtitle">Pour <span id="owner-name">Stéphanie</span> – Propriétaire attentionnée</p>
-            <button class="settings-btn" id="open-settings">
-                <i class="fas fa-cog"></i>
+            <button class="settings-btn" id="open-settings" aria-label="Ouvrir les paramètres">
+                <i class="fas fa-cog" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <div class="container">
+    <main class="container">
         <div class="input-section">
             <div class="form-group">
-                <label for="temperature"><i class="fas fa-thermometer-half"></i> Température minimale nocturne (°C)</label>
+                <label for="temperature"><i class="fas fa-thermometer-half" aria-hidden="true"></i> Température minimale nocturne (°C)</label>
                 <div class="input-with-icon">
-                    <i class="fas fa-temperature-low"></i>
-                    <input type="number" id="temperature" placeholder="Ex: 5" min="-20" max="30" step="0.1" inputmode="decimal">
+                    <i class="fas fa-temperature-low" aria-hidden="true"></i>
+                    <input type="number" id="temperature" placeholder="Ex: 5" min="-20" max="30" step="0.1" inputmode="decimal" aria-describedby="temperature-help">
+                </div>
+                <div id="temperature-help" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i> Veuillez entrer une température valide entre -20°C et 30°C
                 </div>
             </div>
 
             <div class="meteo-section">
                 <div class="meteo-title">
-                    <i class="fas fa-cloud-sun"></i> Vérifier la météo
+                    <i class="fas fa-cloud-sun" aria-hidden="true"></i> Vérifier la météo
                 </div>
                 <div class="meteo-description">
                     Consultez la température minimale nocturne sur Météo-France pour obtenir la recommandation adaptée.
                 </div>
                 <a href="https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100" target="_blank" rel="noopener" class="btn btn-meteo">
-                    <i class="fas fa-external-link-alt"></i> Ouvrir Météo-France
+                    <i class="fas fa-external-link-alt" aria-hidden="true"></i> Ouvrir Météo-France
                 </a>
             </div>
 
             <button id="open-guide" class="btn btn-outline">
-                <i class="fas fa-book"></i> Afficher le guide des couvertures
+                <i class="fas fa-book" aria-hidden="true"></i> Afficher le guide des couvertures
             </button>
         </div>
-    </div>
+    </main>
 
     <!-- Popup Résultat -->
-    <div id="result-modal" class="modal-overlay">
+    <div id="result-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="result-title">
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">
-                    <i class="fas fa-horse"></i> Recommandation pour <span id="horse-name-3">Aldo</span>
+                    <i class="fas fa-horse" aria-hidden="true"></i> 
+                    <span id="result-title">Recommandation pour <span id="horse-name-3">Aldo</span></span>
                     <span id="tonte-indicator-modal" class="tonte-indicator tondu">
-                        <i class="fas fa-cut"></i> Tondu
+                        <i class="fas fa-cut" aria-hidden="true"></i> Tondu
                     </span>
                 </div>
-                <button class="close-modal" id="close-result">&times;</button>
+                <button class="close-modal" id="close-result" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body" id="result-modal-body">
                 <!-- Rempli dynamiquement -->
@@ -590,64 +709,64 @@
     </div>
 
     <!-- Popup Guide -->
-    <div id="guide-modal" class="modal-overlay">
+    <div id="guide-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="guide-title">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-book-open"></i> Guide des Couvertures</div>
-                <button class="close-modal" id="close-guide">&times;</button>
+                <div class="modal-title" id="guide-title"><i class="fas fa-book-open" aria-hidden="true"></i> Guide des Couvertures</div>
+                <button class="close-modal" id="close-guide" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="guide-grid">
                     <div class="guide-card">
                         <div class="guide-header">
-                            <i class="fas fa-snowflake"></i> <span id="horse-name-4">Aldo</span> est Tondu
+                            <i class="fas fa-snowflake" aria-hidden="true"></i> <span id="horse-name-4">Aldo</span> est Tondu
                         </div>
                         <div class="guide-body">
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 10° à 15°</span>
                                 <span class="recommendation-text light-blanket">Chemise d'écurie</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 5° à 10°</span>
                                 <span class="recommendation-text light-blanket">Polaire ou couverture (100–150 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> 0° à 5°</span>
                                 <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -5° à 0°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture chaude (300 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -10° à -5°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture épaisse (400 gr)</span>
                             </div>
                         </div>
                     </div>
                     <div class="guide-card">
                         <div class="guide-header">
-                            <i class="fas fa-wind"></i> <span id="horse-name-5">Aldo</span> n'est pas Tondu
+                            <i class="fas fa-wind" aria-hidden="true"></i> <span id="horse-name-5">Aldo</span> n'est pas Tondu
                         </div>
                         <div class="guide-body">
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 10° à 15°</span>
                                 <span class="recommendation-text no-blanket">Pas de couverture</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 5° à 10°</span>
                                 <span class="recommendation-text light-blanket">Polaire ou couverture</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> 0° à 5°</span>
                                 <span class="recommendation-text light-blanket">Polaire (100 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -5° à 0°</span>
                                 <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -10° à -5°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture épaisse (300 gr)</span>
                             </div>
                         </div>
@@ -658,27 +777,27 @@
     </div>
 
     <!-- Popup Paramètres -->
-    <div id="settings-modal" class="modal-overlay">
+    <div id="settings-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="settings-title">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-cog"></i> Paramètres</div>
-                <button class="close-modal" id="close-settings">&times;</button>
+                <div class="modal-title" id="settings-title"><i class="fas fa-cog" aria-hidden="true"></i> Paramètres</div>
+                <button class="close-modal" id="close-settings" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body">
                 <form class="settings-form" id="settings-form">
                     <div class="settings-group">
                         <label class="settings-label" for="settings-horse-name">
-                            <i class="fas fa-horse"></i> Nom du cheval
+                            <i class="fas fa-horse" aria-hidden="true"></i> Nom du cheval
                         </label>
                         <div class="input-with-icon">
-                            <i class="fas fa-pencil-alt"></i>
+                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                             <input type="text" id="settings-horse-name" placeholder="Ex: Aldo" value="Aldo">
                         </div>
                     </div>
                     
                     <div class="settings-group">
                         <label class="settings-label">
-                            <i class="fas fa-cut"></i> État de la tonte
+                            <i class="fas fa-cut" aria-hidden="true"></i> État de la tonte
                         </label>
                         <div class="radio-group">
                             <div class="radio-option" id="settings-tondu-oui-option">
@@ -694,16 +813,16 @@
                     
                     <div class="settings-group">
                         <label class="settings-label" for="settings-owner-name">
-                            <i class="fas fa-user"></i> Nom du propriétaire
+                            <i class="fas fa-user" aria-hidden="true"></i> Nom du propriétaire
                         </label>
                         <div class="input-with-icon">
-                            <i class="fas fa-pencil-alt"></i>
+                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                             <input type="text" id="settings-owner-name" placeholder="Ex: Stéphanie" value="Stéphanie">
                         </div>
                     </div>
                     
                     <button type="submit" class="btn btn-settings">
-                        <i class="fas fa-save"></i> Enregistrer les paramètres
+                        <i class="fas fa-save" aria-hidden="true"></i> Enregistrer les paramètres
                     </button>
                 </form>
             </div>
@@ -712,7 +831,7 @@
 
     <footer>
         <div class="container">
-            <p><i class="fas fa-heart" style="color: var(--danger);"></i> Pour <span id="horse-name-6">Aldo</span> – <span id="owner-name-2">Stéphanie</span></p>
+            <p><i class="fas fa-heart" style="color: var(--danger);" aria-hidden="true"></i> Pour <span id="horse-name-6">Aldo</span> – <span id="owner-name-2">Stéphanie</span></p>
         </div>
     </footer>
 
@@ -731,6 +850,7 @@
             const resultModalBody = document.getElementById('result-modal-body');
             const settingsForm = document.getElementById('settings-form');
             const tonteIndicatorModal = document.getElementById('tonte-indicator-modal');
+            const errorMessage = document.getElementById('temperature-help');
             
             // Éléments pour les noms personnalisés
             const horseNameElements = [
@@ -764,6 +884,7 @@
 
             // Variables d'état
             let isTondu = true;
+            let lastFocusedElement = null;
 
             // Initialisation des paramètres
             function initializeSettings() {
@@ -806,19 +927,38 @@
             // Mise à jour de l'indicateur de tonte
             function updateTonteIndicator() {
                 if (isTondu) {
-                    tonteIndicatorModal.innerHTML = '<i class="fas fa-cut"></i> Tondu';
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-cut" aria-hidden="true"></i> Tondu';
                     tonteIndicatorModal.className = 'tonte-indicator tondu';
                 } else {
-                    tonteIndicatorModal.innerHTML = '<i class="fas fa-wind"></i> Non tondu';
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-wind" aria-hidden="true"></i> Non tondu';
                     tonteIndicatorModal.className = 'tonte-indicator non-tondu';
                 }
+            }
+
+            // Validation de la température
+            function validateTemperature(temp) {
+                return !isNaN(temp) && temp >= -20 && temp <= 30;
             }
 
             // Calcul de la recommandation
             function calculateRecommendation() {
                 const temp = parseFloat(temperatureInput.value);
+                const isValid = validateTemperature(temp);
+                
+                // Gestion des erreurs
+                if (!isValid && temperatureInput.value !== '') {
+                    errorMessage.style.display = 'flex';
+                    temperatureInput.style.borderColor = 'var(--danger)';
+                    if (resultModal.classList.contains('active')) {
+                        resultModal.classList.remove('active');
+                    }
+                    return;
+                } else {
+                    errorMessage.style.display = 'none';
+                    temperatureInput.style.borderColor = '#e5e7eb';
+                }
 
-                if (isNaN(temp)) {
+                if (!isValid) {
                     if (resultModal.classList.contains('active')) {
                         resultModal.classList.remove('active');
                     }
@@ -845,23 +985,42 @@
 
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
-                        <div class="recommendation ${colorClass}"><i class="${icon}"></i> ${rec.recommendation}</div>
+                        <div class="recommendation ${colorClass}"><i class="${icon}" aria-hidden="true"></i> ${rec.recommendation}</div>
                         <div class="details">${rec.details}</div>
                         <div class="info">
-                            <i class="fas fa-info-circle"></i> 
+                            <i class="fas fa-info-circle" aria-hidden="true"></i> 
                             Recommandation pour ${horseNameElements[0].textContent} (${isTondu ? 'tondu' : 'non tondu'})
                         </div>
                     `;
-                    resultModal.classList.add('active');
+                    openModal(resultModal);
                 } else {
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
                         <div class="recommendation">Température hors plage</div>
                         <div class="details">La température n'est pas couverte par nos recommandations.</div>
-                        <div class="info"><i class="fas fa-info-circle"></i> Ouvrez le guide pour plus de détails.</div>
+                        <div class="info"><i class="fas fa-info-circle" aria-hidden="true"></i> Ouvrez le guide pour plus de détails.</div>
                     `;
-                    resultModal.classList.add('active');
+                    openModal(resultModal);
                 }
+            }
+
+            // Gestion de l'ouverture des modales
+            function openModal(modal) {
+                lastFocusedElement = document.activeElement;
+                modal.setAttribute('aria-hidden', 'false');
+                modal.classList.add('active');
+                
+                // Focus sur le bouton de fermeture pour l'accessibilité
+                const closeBtn = modal.querySelector('.close-modal');
+                if (closeBtn) closeBtn.focus();
+            }
+
+            function closeModal(modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('active');
+                
+                // Retour au dernier élément focus pour l'accessibilité
+                if (lastFocusedElement) lastFocusedElement.focus();
             }
 
             // Événements d'entrée de température
@@ -887,7 +1046,7 @@
                 updateTonteIndicator();
                 
                 // Fermeture de la modale
-                settingsModal.classList.remove('active');
+                closeModal(settingsModal);
                 
                 // Recalcul de la recommandation si nécessaire
                 calculateRecommendation();
@@ -895,45 +1054,67 @@
 
             // Ouverture des modales
             openGuideBtn.addEventListener('click', () => {
-                guideModal.classList.add('active');
+                openModal(guideModal);
             });
 
             openSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.add('active');
+                openModal(settingsModal);
             });
 
             // Fermeture des modales
             closeResultBtn.addEventListener('click', () => {
-                resultModal.classList.remove('active');
+                closeModal(resultModal);
             });
 
             closeGuideBtn.addEventListener('click', () => {
-                guideModal.classList.remove('active');
+                closeModal(guideModal);
             });
 
             closeSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.remove('active');
+                closeModal(settingsModal);
             });
 
             // Fermeture des modales en cliquant à l'extérieur
             resultModal.addEventListener('click', (e) => {
-                if (e.target === resultModal) resultModal.classList.remove('active');
+                if (e.target === resultModal) closeModal(resultModal);
             });
 
             guideModal.addEventListener('click', (e) => {
-                if (e.target === guideModal) guideModal.classList.remove('active');
+                if (e.target === guideModal) closeModal(guideModal);
             });
 
             settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) settingsModal.classList.remove('active');
+                if (e.target === settingsModal) closeModal(settingsModal);
             });
 
             // Fermeture des modales avec la touche Échap
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    resultModal.classList.remove('active');
-                    guideModal.classList.remove('active');
-                    settingsModal.classList.remove('active');
+                    closeModal(resultModal);
+                    closeModal(guideModal);
+                    closeModal(settingsModal);
+                }
+            });
+
+            // Gestion de la navigation au clavier dans les modales
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && document.querySelector('.modal-overlay.active')) {
+                    const modal = document.querySelector('.modal-overlay.active');
+                    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
                 }
             });
 
