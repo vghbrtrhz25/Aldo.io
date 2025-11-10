@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestion des Couvertures pour Aldo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e5a42;
+            --primary-light: #4a8c69;
+            --primary-dark: #1e3d2c;
+            --secondary: #c9a97e;
+            --secondary-light: #e0c8a9;
+            --accent: #5d8aa8;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --gray: #718096;
+            --gray-light: #f1f5f9;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --gradient-primary: linear-gradient(135deg, #2e5a42 0%, #4a8c69 100%);
+            --gradient-secondary: linear-gradient(135deg, #c9a97e 0%, #e0c8a9 100%);
+            --gradient-accent: linear-gradient(135deg, #5d8aa8 0%, #7ba7c7 100%);
+            --gradient-bg: linear-gradient(135deg, #f9f6f0 0%, #eae3d2 100%);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.16);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body {
+            background: var(--gradient-bg);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+            animation: slideDown 0.6s ease-out;
+            position: relative;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.8rem;
+            font-weight: 400;
+        }
+        .settings-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+        }
+        .input-section {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+        .input-section:hover {
+            box-shadow: var(--shadow-md);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            z-index: 1;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            background-color: var(--gray-light);
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            transition: var(--transition);
+        }
+        input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(46, 90, 66, 0.1);
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+            min-width: 120px;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            background-color: #fafafa;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .radio-option:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        .radio-option input {
+            margin-right: 10px;
+            transform: scale(1.3);
+        }
+        .radio-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(46, 90, 66, 0.08);
+            box-shadow: 0 4px 8px rgba(46, 90, 66, 0.1);
+        }
+        .btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0;
+            box-shadow: var(--shadow-sm);
+            min-height: 52px;
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        .btn-meteo {
+            background: var(--gradient-accent);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-settings {
+            background: var(--gradient-secondary);
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+        .meteo-section {
+            background-color: rgba(93, 138, 168, 0.06);
+            border: 2px solid rgba(93, 138, 168, 0.2);
+            border-radius: 14px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .meteo-section:hover {
+            background-color: rgba(93, 138, 168, 0.1);
+            border-color: rgba(93, 138, 168, 0.3);
+        }
+        .meteo-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        .meteo-description {
+            color: var(--dark);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Popup Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 95%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .close-modal:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .settings-label {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .temperature-display {
+            font-size: 3.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #3b82f6, #60a5fa, #fbbf24, #ef4444);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .recommendation {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            animation: fadeIn 0.6s ease-out 0.3s both;
+        }
+        .details {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+        .info {
+            color: var(--primary);
+            font-weight: 600;
+            padding: 8px 12px;
+            background-color: rgba(46, 90, 66, 0.1);
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 0.9rem;
+            animation: fadeIn 0.6s ease-out 0.5s both;
+        }
+
+        /* Guide spécifique */
+        .guide-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: left;
+        }
+        .guide-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: fadeIn 0.6s ease-out;
+        }
+        .guide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        .guide-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.2rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .guide-body {
+            padding: 1.2rem;
+        }
+        .temperature-range {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+        .temperature-range:hover {
+            background-color: rgba(46, 90, 66, 0.03);
+            padding-left: 8px;
+            padding-right: 8px;
+            border-radius: 8px;
+        }
+        .temperature-range:last-child {
+            border-bottom: none;
+        }
+        .range {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        .recommendation-text {
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .no-blanket { color: var(--success); font-weight: 600; }
+        .light-blanket { color: var(--warning); }
+        .medium-blanket { color: var(--primary); }
+        .heavy-blanket { color: var(--danger); }
+
+        /* Indicateur d'état de tonte */
+        .tonte-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+            background-color: rgba(46, 90, 66, 0.1);
+            color: var(--primary);
+        }
+        .tonte-indicator.tondu {
+            background-color: rgba(46, 90, 66, 0.15);
+            color: var(--primary);
+        }
+        .tonte-indicator.non-tondu {
+            background-color: rgba(201, 169, 126, 0.15);
+            color: #8a6d3b;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+            h1 { font-size: 2.4rem; }
+            .temperature-display { font-size: 4rem; }
+            .guide-grid {
+                flex-direction: row;
+            }
+            .guide-card {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-horse"></i> Couvertures pour <span id="horse-name">Aldo</span></h1>
+            <p class="subtitle">Pour <span id="owner-name">Stéphanie</span> – Propriétaire attentionnée</p>
+            <button class="settings-btn" id="open-settings">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="input-section">
+            <div class="form-group">
+                <label for="temperature"><i class="fas fa-thermometer-half"></i> Température minimale nocturne (°C)</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-temperature-low"></i>
+                    <input type="number" id="temperature" placeholder="Ex: 5" min="-20" max="30" step="0.1" inputmode="decimal">
+                </div>
+            </div>
+
+            <div class="meteo-section">
+                <div class="meteo-title">
+                    <i class="fas fa-cloud-sun"></i> Vérifier la météo
+                </div>
+                <div class="meteo-description">
+                    Consultez la température minimale nocturne sur Météo-France pour obtenir la recommandation adaptée.
+                </div>
+                <a href="https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100" target="_blank" rel="noopener" class="btn btn-meteo">
+                    <i class="fas fa-external-link-alt"></i> Ouvrir Météo-France
+                </a>
+            </div>
+
+            <button id="open-guide" class="btn btn-outline">
+                <i class="fas fa-book"></i> Afficher le guide des couvertures
+            </button>
+        </div>
+    </div>
+
+    <!-- Popup Résultat -->
+    <div id="result-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-horse"></i> Recommandation pour <span id="horse-name-3">Aldo</span>
+                    <span id="tonte-indicator-modal" class="tonte-indicator tondu">
+                        <i class="fas fa-cut"></i> Tondu
+                    </span>
+                </div>
+                <button class="close-modal" id="close-result">&times;</button>
+            </div>
+            <div class="modal-body" id="result-modal-body">
+                <!-- Rempli dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Guide -->
+    <div id="guide-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-book-open"></i> Guide des Couvertures</div>
+                <button class="close-modal" id="close-guide">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <div class="guide-header">
+                            <i class="fas fa-snowflake"></i> <span id="horse-name-4">Aldo</span> est Tondu
+                        </div>
+                        <div class="guide-body">
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="recommendation-text light-blanket">Chemise d'écurie</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="recommendation-text light-blanket">Polaire ou couverture (100–150 gr)</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="recommendation-text heavy-blanket">Couverture chaude (300 gr)</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="recommendation-text heavy-blanket">Couverture épaisse (400 gr)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="guide-card">
+                        <div class="guide-header">
+                            <i class="fas fa-wind"></i> <span id="horse-name-5">Aldo</span> n'est pas Tondu
+                        </div>
+                        <div class="guide-body">
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="recommendation-text no-blanket">Pas de couverture</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="recommendation-text light-blanket">Polaire ou couverture</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="recommendation-text light-blanket">Polaire (100 gr)</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
+                            </div>
+                            <div class="temperature-range">
+                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="recommendation-text heavy-blanket">Couverture épaisse (300 gr)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Paramètres -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-cog"></i> Paramètres</div>
+                <button class="close-modal" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="settings-form" id="settings-form">
+                    <div class="settings-group">
+                        <label class="settings-label" for="settings-horse-name">
+                            <i class="fas fa-horse"></i> Nom du cheval
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-pencil-alt"></i>
+                            <input type="text" id="settings-horse-name" placeholder="Ex: Aldo" value="Aldo">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">
+                            <i class="fas fa-cut"></i> État de la tonte
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option" id="settings-tondu-oui-option">
+                                <input type="radio" id="settings-tondu-oui" name="settings-tondu" value="oui" checked>
+                                <label for="settings-tondu-oui">Tondu</label>
+                            </div>
+                            <div class="radio-option" id="settings-tondu-non-option">
+                                <input type="radio" id="settings-tondu-non" name="settings-tondu" value="non">
+                                <label for="settings-tondu-non">Non tondu</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label" for="settings-owner-name">
+                            <i class="fas fa-user"></i> Nom du propriétaire
+                        </label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-pencil-alt"></i>
+                            <input type="text" id="settings-owner-name" placeholder="Ex: Stéphanie" value="Stéphanie">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-settings">
+                        <i class="fas fa-save"></i> Enregistrer les paramètres
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p><i class="fas fa-heart" style="color: var(--danger);"></i> Pour <span id="horse-name-6">Aldo</span> – <span id="owner-name-2">Stéphanie</span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Éléments DOM
+            const temperatureInput = document.getElementById('temperature');
+            const openGuideBtn = document.getElementById('open-guide');
+            const openSettingsBtn = document.getElementById('open-settings');
+            const closeResultBtn = document.getElementById('close-result');
+            const closeGuideBtn = document.getElementById('close-guide');
+            const closeSettingsBtn = document.getElementById('close-settings');
+            const resultModal = document.getElementById('result-modal');
+            const guideModal = document.getElementById('guide-modal');
+            const settingsModal = document.getElementById('settings-modal');
+            const resultModalBody = document.getElementById('result-modal-body');
+            const settingsForm = document.getElementById('settings-form');
+            const tonteIndicatorModal = document.getElementById('tonte-indicator-modal');
+            
+            // Éléments pour les noms personnalisés
+            const horseNameElements = [
+                document.getElementById('horse-name'),
+                document.getElementById('horse-name-3'),
+                document.getElementById('horse-name-4'),
+                document.getElementById('horse-name-5'),
+                document.getElementById('horse-name-6')
+            ];
+            const ownerNameElements = [
+                document.getElementById('owner-name'),
+                document.getElementById('owner-name-2')
+            ];
+            
+            // Paramètres des règles
+            const rulesTondu = [
+                { min: 10, max: 15, recommendation: "Chemise d'écurie", details: "Une simple chemise d'écurie suffit.", type: "light" },
+                { min: 5, max: 10, recommendation: "Polaire ou couverture (100–150 gr)", details: "Utilisez une polaire ou une couverture d'écurie.", type: "light" },
+                { min: 0, max: 5, recommendation: "Couverture mi-saison (200 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "medium" },
+                { min: -5, max: 0, recommendation: "Couverture chaude (300 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "heavy" },
+                { min: -10, max: -5, recommendation: "Couverture épaisse (400 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "heavy" }
+            ];
+
+            const rulesNonTondu = [
+                { min: 10, max: 15, recommendation: "Pas de couverture", details: "Aucune couverture n'est nécessaire.", type: "none" },
+                { min: 5, max: 10, recommendation: "Polaire ou couverture", details: "Utilisez une polaire ou une couverture d'écurie.", type: "light" },
+                { min: 0, max: 5, recommendation: "Polaire (100 gr)", details: "Utilisez une polaire ou une couverture d'écurie.", type: "light" },
+                { min: -5, max: 0, recommendation: "Couverture mi-saison (200 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "medium" },
+                { min: -10, max: -5, recommendation: "Couverture épaisse (300 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "heavy" }
+            ];
+
+            // Variables d'état
+            let isTondu = true;
+
+            // Initialisation des paramètres
+            function initializeSettings() {
+                const savedHorseName = localStorage.getItem('horseName');
+                const savedOwnerName = localStorage.getItem('ownerName');
+                const savedIsTondu = localStorage.getItem('isTondu');
+                
+                if (savedHorseName) {
+                    document.getElementById('settings-horse-name').value = savedHorseName;
+                    updateHorseName(savedHorseName);
+                }
+                
+                if (savedOwnerName) {
+                    document.getElementById('settings-owner-name').value = savedOwnerName;
+                    updateOwnerName(savedOwnerName);
+                }
+                
+                if (savedIsTondu) {
+                    isTondu = savedIsTondu === 'true';
+                    document.getElementById('settings-tondu-oui').checked = isTondu;
+                    document.getElementById('settings-tondu-non').checked = !isTondu;
+                    updateTonteIndicator();
+                }
+            }
+            
+            // Mise à jour du nom du cheval
+            function updateHorseName(name) {
+                horseNameElements.forEach(element => {
+                    if (element) element.textContent = name;
+                });
+            }
+            
+            // Mise à jour du nom du propriétaire
+            function updateOwnerName(name) {
+                ownerNameElements.forEach(element => {
+                    if (element) element.textContent = name;
+                });
+            }
+            
+            // Mise à jour de l'indicateur de tonte
+            function updateTonteIndicator() {
+                if (isTondu) {
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-cut"></i> Tondu';
+                    tonteIndicatorModal.className = 'tonte-indicator tondu';
+                } else {
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-wind"></i> Non tondu';
+                    tonteIndicatorModal.className = 'tonte-indicator non-tondu';
+                }
+            }
+
+            // Calcul de la recommandation
+            function calculateRecommendation() {
+                const temp = parseFloat(temperatureInput.value);
+
+                if (isNaN(temp)) {
+                    if (resultModal.classList.contains('active')) {
+                        resultModal.classList.remove('active');
+                    }
+                    return;
+                }
+
+                const rules = isTondu ? rulesTondu : rulesNonTondu;
+                let rec = null;
+                for (const rule of rules) {
+                    if (temp >= rule.min && temp <= rule.max) {
+                        rec = rule;
+                        break;
+                    }
+                }
+
+                let icon = "fas fa-horse", colorClass = "";
+                if (rec) {
+                    switch (rec.type) {
+                        case "none": icon = "fas fa-check-circle"; colorClass = "no-blanket"; break;
+                        case "light": colorClass = "light-blanket"; break;
+                        case "medium": icon = "fas fa-horse-head"; colorClass = "medium-blanket"; break;
+                        case "heavy": icon = "fas fa-horse-head"; colorClass = "heavy-blanket"; break;
+                    }
+
+                    resultModalBody.innerHTML = `
+                        <div class="temperature-display">${Math.round(temp)}°C</div>
+                        <div class="recommendation ${colorClass}"><i class="${icon}"></i> ${rec.recommendation}</div>
+                        <div class="details">${rec.details}</div>
+                        <div class="info">
+                            <i class="fas fa-info-circle"></i> 
+                            Recommandation pour ${horseNameElements[0].textContent} (${isTondu ? 'tondu' : 'non tondu'})
+                        </div>
+                    `;
+                    resultModal.classList.add('active');
+                } else {
+                    resultModalBody.innerHTML = `
+                        <div class="temperature-display">${Math.round(temp)}°C</div>
+                        <div class="recommendation">Température hors plage</div>
+                        <div class="details">La température n'est pas couverte par nos recommandations.</div>
+                        <div class="info"><i class="fas fa-info-circle"></i> Ouvrez le guide pour plus de détails.</div>
+                    `;
+                    resultModal.classList.add('active');
+                }
+            }
+
+            // Événements d'entrée de température
+            temperatureInput.addEventListener('input', calculateRecommendation);
+            temperatureInput.addEventListener('change', calculateRecommendation);
+
+            // Gestion du formulaire de paramètres
+            settingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const horseName = document.getElementById('settings-horse-name').value;
+                const ownerName = document.getElementById('settings-owner-name').value;
+                isTondu = document.getElementById('settings-tondu-oui').checked;
+                
+                // Sauvegarde dans le localStorage
+                localStorage.setItem('horseName', horseName);
+                localStorage.setItem('ownerName', ownerName);
+                localStorage.setItem('isTondu', isTondu);
+                
+                // Mise à jour de l'interface
+                updateHorseName(horseName);
+                updateOwnerName(ownerName);
+                updateTonteIndicator();
+                
+                // Fermeture de la modale
+                settingsModal.classList.remove('active');
+                
+                // Recalcul de la recommandation si nécessaire
+                calculateRecommendation();
+            });
+
+            // Ouverture des modales
+            openGuideBtn.addEventListener('click', () => {
+                guideModal.classList.add('active');
+            });
+
+            openSettingsBtn.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+            });
+
+            // Fermeture des modales
+            closeResultBtn.addEventListener('click', () => {
+                resultModal.classList.remove('active');
+            });
+
+            closeGuideBtn.addEventListener('click', () => {
+                guideModal.classList.remove('active');
+            });
+
+            closeSettingsBtn.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+
+            // Fermeture des modales en cliquant à l'extérieur
+            resultModal.addEventListener('click', (e) => {
+                if (e.target === resultModal) resultModal.classList.remove('active');
+            });
+
+            guideModal.addEventListener('click', (e) => {
+                if (e.target === guideModal) guideModal.classList.remove('active');
+            });
+
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) settingsModal.classList.remove('active');
+            });
+
+            // Fermeture des modales avec la touche Échap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    resultModal.classList.remove('active');
+                    guideModal.classList.remove('active');
+                    settingsModal.classList.remove('active');
+                }
+            });
+
+            // Initialisation
+            initializeSettings();
+            updateTonteIndicator();
+        });
+    </script>
+</body>
+</html>
