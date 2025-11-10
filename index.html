@@ -3,310 +3,577 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gestion des Couvertures pour Aldo</title>
+    <title>Couvertures pour Aldo</title>
+    <meta name="description" content="Application pour déterminer la couverture adaptée à votre cheval selon la température">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2e5a42;
-            --primary-light: #4a8c69;
-            --primary-dark: #1e3d2c;
-            --secondary: #c9a97e;
-            --secondary-light: #e0c8a9;
-            --accent: #5d8aa8;
-            --light: #f8f9fa;
-            --dark: #2d3748;
-            --gray: #718096;
-            --gray-light: #f1f5f9;
-            --success: #48bb78;
-            --warning: #ed8936;
-            --danger: #f56565;
-            --gradient-primary: linear-gradient(135deg, #2e5a42 0%, #4a8c69 100%);
-            --gradient-secondary: linear-gradient(135deg, #c9a97e 0%, #e0c8a9 100%);
-            --gradient-accent: linear-gradient(135deg, #5d8aa8 0%, #7ba7c7 100%);
-            --gradient-bg: linear-gradient(135deg, #f9f6f0 0%, #eae3d2 100%);
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.16);
-            --border-radius: 16px;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --netflix-red: #E50914;
+            --netflix-red-dark: #B20710;
+            --netflix-black: #141414;
+            --netflix-dark-gray: #2D2D2D;
+            --netflix-gray: #404040;
+            --netflix-light-gray: #8C8C8C;
+            --netflix-white: #FFFFFF;
+            --netflix-gradient: linear-gradient(135deg, #E50914 0%, #B20710 100%);
+            --netflix-gradient-dark: linear-gradient(135deg, #141414 0%, #2D2D2D 100%);
+            --netflix-gradient-card: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%);
+            --shadow-netflix: 0 8px 30px rgba(0, 0, 0, 0.6);
+            --shadow-netflix-sm: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
+
+        /* Reset et styles de base */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: var(--gradient-bg);
-            color: var(--dark);
-            line-height: 1.6;
+            font-family: 'Netflix Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--netflix-black);
+            color: var(--netflix-white);
+            line-height: 1.4;
             min-height: 100vh;
-            padding: 10px;
+            padding: 0;
         }
+
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 0 20px;
         }
+
+        /* En-tête style Netflix */
         header {
-            background: var(--gradient-primary);
-            color: white;
-            padding: 1.5rem;
+            background: var(--netflix-gradient-dark);
+            color: var(--netflix-white);
+            padding: 2rem 0;
             text-align: center;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-md);
-            animation: slideDown 0.6s ease-out;
+            margin-bottom: 3rem;
             position: relative;
+            border-bottom: 3px solid var(--netflix-red);
+            box-shadow: var(--shadow-netflix);
         }
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--netflix-gradient);
         }
+
         h1 {
-            font-size: 1.8rem;
+            font-size: 3.5rem;
             margin-bottom: 0.5rem;
-            font-weight: 700;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: -1px;
         }
+
         .subtitle {
-            font-size: 1rem;
+            font-size: 1.3rem;
             opacity: 0.9;
-            margin-top: 0.8rem;
+            margin-top: 1rem;
             font-weight: 400;
+            color: var(--netflix-light-gray);
         }
+
         .settings-btn {
             position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(229, 9, 20, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: var(--transition);
+            font-size: 1.3rem;
+            box-shadow: var(--shadow-netflix-sm);
         }
-        .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(30deg);
+
+        .settings-btn:hover,
+        .settings-btn:focus {
+            background: var(--netflix-red);
+            transform: rotate(90deg) scale(1.1);
+            outline: none;
+            box-shadow: 0 6px 25px rgba(229, 9, 20, 0.5);
         }
+
+        /* Section principale */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Section de saisie style carte Netflix */
         .input-section {
-            background-color: white;
-            padding: 1.5rem;
+            background: var(--netflix-gradient-card);
+            padding: 2.5rem;
             border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-netflix);
             transition: var(--transition);
-            animation: fadeIn 0.6s ease-out 0.2s both;
+            border: 1px solid var(--netflix-gray);
+            position: relative;
+            overflow: hidden;
         }
+
+        .input-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--netflix-gradient);
+        }
+
         .input-section:hover {
-            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
         }
+
         label {
             display: block;
-            margin-bottom: 0.8rem;
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+            color: var(--netflix-white);
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .input-with-icon {
             position: relative;
         }
+
         .input-with-icon i {
             position: absolute;
-            left: 15px;
+            left: 20px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gray);
+            color: var(--netflix-red);
             z-index: 1;
+            font-size: 1.4rem;
         }
-        input[type="number"], input[type="text"] {
+
+        input[type="number"], 
+        input[type="text"] {
             width: 100%;
-            padding: 16px 16px 16px 48px;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            font-size: 1.2rem;
-            background-color: var(--gray-light);
+            padding: 20px 20px 20px 65px;
+            border: 2px solid var(--netflix-gray);
+            border-radius: 8px;
+            font-size: 1.3rem;
+            background: var(--netflix-dark-gray);
+            color: var(--netflix-white);
             -webkit-appearance: none;
             -moz-appearance: textfield;
             transition: var(--transition);
+            font-weight: 500;
+            font-family: 'Netflix Sans', sans-serif;
         }
-        input[type="number"]:focus, input[type="text"]:focus {
+
+        input[type="number"]:focus, 
+        input[type="text"]:focus {
             outline: none;
-            border-color: var(--primary);
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(46, 90, 66, 0.1);
+            border-color: var(--netflix-red);
+            background: var(--netflix-black);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.3);
         }
+
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+
         .radio-group {
             display: flex;
-            gap: 12px;
-            margin-top: 0.8rem;
+            gap: 15px;
+            margin-top: 1.2rem;
             flex-wrap: wrap;
         }
+
         .radio-option {
             display: flex;
             align-items: center;
             cursor: pointer;
             flex: 1;
-            min-width: 120px;
-            padding: 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            background-color: #fafafa;
-            font-size: 1rem;
+            min-width: 160px;
+            padding: 18px;
+            border: 2px solid var(--netflix-gray);
+            border-radius: 8px;
+            background: var(--netflix-dark-gray);
+            font-size: 1.1rem;
             transition: var(--transition);
+            font-weight: 500;
         }
+
         .radio-option:hover {
-            border-color: var(--primary-light);
+            border-color: var(--netflix-red);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-netflix-sm);
         }
+
         .radio-option input {
-            margin-right: 10px;
-            transform: scale(1.3);
+            margin-right: 12px;
+            transform: scale(1.4);
+            accent-color: var(--netflix-red);
         }
+
         .radio-option.selected {
-            border-color: var(--primary);
-            background-color: rgba(46, 90, 66, 0.08);
-            box-shadow: 0 4px 8px rgba(46, 90, 66, 0.1);
+            border-color: var(--netflix-red);
+            background: rgba(229, 9, 20, 0.1);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.2);
         }
+
+        /* Boutons style Netflix */
         .btn {
-            background: var(--gradient-primary);
+            background: var(--netflix-gradient);
             color: white;
             border: none;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: 700;
             cursor: pointer;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin: 12px 0;
-            box-shadow: var(--shadow-sm);
-            min-height: 52px;
+            gap: 15px;
+            margin: 20px 0;
+            box-shadow: var(--shadow-netflix-sm);
+            min-height: 65px;
             text-decoration: none;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Netflix Sans', sans-serif;
         }
-        .btn::after {
+
+        .btn::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
         }
-        .btn:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
+
+        .btn:hover::before {
+            left: 100%;
         }
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(20, 20);
-                opacity: 0;
-            }
-        }
-        .btn:hover {
+
+        .btn:hover,
+        .btn:focus {
             transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+            outline: none;
         }
+
         .btn:active {
             transform: translateY(-1px);
         }
+
         .btn-meteo {
-            background: var(--gradient-accent);
+            background: linear-gradient(135deg, #00A8FF 0%, #0097E6 100%);
         }
+
+        .btn-meteo:hover {
+            box-shadow: 0 10px 30px rgba(0, 168, 255, 0.4);
+        }
+
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
+            border: 2px solid var(--netflix-red);
+            color: var(--netflix-red);
         }
-        .btn-outline:hover {
-            background: var(--primary);
+
+        .btn-outline:hover,
+        .btn-outline:focus {
+            background: var(--netflix-red);
             color: white;
+            transform: translateY(-3px);
         }
+
         .btn-settings {
-            background: var(--gradient-secondary);
+            background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
         }
-        footer {
-            text-align: center;
-            padding: 1.5rem 0;
-            color: var(--gray);
-            font-size: 0.9rem;
-            animation: fadeIn 0.6s ease-out 0.4s both;
+
+        .btn-save {
+            background: linear-gradient(135deg, #00D2D3 0%, #00B4B5 100%);
+            margin-top: 2rem;
         }
+
+        /* Section météo */
         .meteo-section {
-            background-color: rgba(93, 138, 168, 0.06);
-            border: 2px solid rgba(93, 138, 168, 0.2);
-            border-radius: 14px;
-            padding: 1.2rem;
-            margin: 1.5rem 0;
+            background: rgba(0, 168, 255, 0.1);
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 2.5rem 0;
             text-align: center;
             transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
+
+        .meteo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #00A8FF 0%, #0097E6 100%);
+        }
+
         .meteo-section:hover {
-            background-color: rgba(93, 138, 168, 0.1);
-            border-color: rgba(93, 138, 168, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 168, 255, 0.2);
         }
+
         .meteo-title {
-            font-weight: 600;
-            color: var(--accent);
-            margin-bottom: 0.8rem;
+            font-weight: 700;
+            color: #00A8FF;
+            margin-bottom: 1.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            font-size: 1.1rem;
+            gap: 15px;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .meteo-description {
-            color: var(--dark);
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
+            color: var(--netflix-light-gray);
+            font-size: 1.1rem;
+            margin-bottom: 1.8rem;
             line-height: 1.5;
         }
 
-        /* Popup Modal */
+        /* Section Historique style Netflix */
+        .history-section {
+            background: var(--netflix-gradient-card);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-netflix);
+            transition: var(--transition);
+            border: 1px solid var(--netflix-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        }
+
+        .history-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .history-title {
+            font-weight: 900;
+            color: var(--netflix-white);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .history-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--netflix-gray);
+            color: var(--netflix-white);
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .history-btn:hover {
+            background: var(--netflix-red);
+            color: white;
+            transform: scale(1.1);
+            border-color: var(--netflix-red);
+        }
+
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--netflix-red) var(--netflix-dark-gray);
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: var(--netflix-dark-gray);
+            border-radius: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--netflix-red);
+            border-radius: 4px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--netflix-gray);
+            transition: var(--transition);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .history-date {
+            font-weight: 700;
+            color: var(--netflix-red);
+            min-width: 100px;
+            font-size: 1rem;
+        }
+
+        .history-temp {
+            font-size: 1.6rem;
+            font-weight: 900;
+            min-width: 80px;
+            text-align: center;
+            background: linear-gradient(135deg, #E50914, #00A8FF, #8E44AD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .history-rec {
+            flex-grow: 1;
+            margin: 0 1.5rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .history-delete {
+            background: rgba(229, 9, 20, 0.1);
+            border: 2px solid rgba(229, 9, 20, 0.3);
+            color: var(--netflix-red);
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 6px;
+            transition: var(--transition);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-delete:hover {
+            background: var(--netflix-red);
+            color: white;
+            transform: scale(1.1);
+            border-color: var(--netflix-red);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--netflix-light-gray);
+        }
+
+        .empty-history i {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+            background: linear-gradient(135deg, #E50914, #8E44AD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Modales style Netflix */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -314,274 +581,450 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
-            backdrop-filter: blur(4px);
+            padding: 20px;
         }
+
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
+
         .modal {
-            background: white;
+            background: var(--netflix-gradient-card);
             border-radius: var(--border-radius);
             width: 95%;
-            max-width: 500px;
-            max-height: 85vh;
+            max-width: 600px;
+            max-height: 90vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-            transform: translateY(20px) scale(0.95);
+            box-shadow: var(--shadow-netflix);
+            transform: translateY(30px) scale(0.95);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
+            border: 1px solid var(--netflix-gray);
         }
+
         .modal-overlay.active .modal {
             transform: translateY(0) scale(1);
         }
+
         .modal-header {
-            padding: 1.5rem;
-            background: var(--gradient-primary);
+            padding: 2.5rem;
+            background: var(--netflix-gradient);
             color: white;
             border-radius: var(--border-radius) var(--border-radius) 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--netflix-gradient);
+        }
+
         .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.8rem;
+            font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .close-modal {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             transition: var(--transition);
         }
-        .close-modal:hover {
-            background: rgba(255,255,255,0.2);
-            transform: rotate(90deg);
+
+        .close-modal:hover,
+        .close-modal:focus {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg) scale(1.1);
+            outline: none;
         }
+
         .modal-body {
-            padding: 1.5rem;
+            padding: 2.5rem;
         }
+
+        /* Formulaire de paramètres */
         .settings-form {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2.5rem;
         }
+
         .settings-group {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
+            gap: 1.2rem;
         }
+
         .settings-label {
-            font-weight: 600;
-            color: var(--primary);
+            font-weight: 700;
+            color: var(--netflix-white);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
+        /* Affichage des résultats */
         .temperature-display {
-            font-size: 3.2rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, #3b82f6, #60a5fa, #fbbf24, #ef4444);
+            font-size: 5rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #E50914, #00A8FF, #8E44AD, #00D2D3);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            animation: pulse 2s infinite;
+            animation: netflixPulse 2s infinite;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        @keyframes pulse {
+
+        @keyframes netflixPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+
         .recommendation {
-            font-size: 1.6rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            animation: fadeIn 0.6s ease-out 0.3s both;
-        }
-        .details {
-            color: var(--gray);
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            line-height: 1.6;
-            animation: fadeIn 0.6s ease-out 0.4s both;
-        }
-        .info {
-            color: var(--primary);
-            font-weight: 600;
-            padding: 8px 12px;
-            background-color: rgba(46, 90, 66, 0.1);
-            border-radius: 10px;
-            display: inline-block;
-            font-size: 0.9rem;
-            animation: fadeIn 0.6s ease-out 0.5s both;
+            gap: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Guide spécifique */
+        .details {
+            color: var(--netflix-light-gray);
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .info {
+            color: var(--netflix-white);
+            font-weight: 600;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 1.1rem;
+            border: 1px solid var(--netflix-gray);
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+            width: fit-content;
+        }
+
+        /* Guide */
         .guide-grid {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2.5rem;
             text-align: left;
         }
+
         .guide-card {
-            border-radius: 16px;
+            border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-netflix);
             transition: var(--transition);
-            animation: fadeIn 0.6s ease-out;
+            background: var(--netflix-gradient-card);
+            border: 1px solid var(--netflix-gray);
         }
+
         .guide-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
         }
+
         .guide-header {
-            background: var(--gradient-primary);
+            background: var(--netflix-gradient);
             color: white;
-            padding: 1.2rem;
-            font-weight: 700;
-            font-size: 1.2rem;
+            padding: 2rem;
+            font-weight: 900;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .guide-body {
-            padding: 1.2rem;
+            padding: 2rem;
         }
+
         .temperature-range {
             display: flex;
             justify-content: space-between;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid #eee;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid var(--netflix-gray);
             transition: var(--transition);
+            align-items: center;
         }
+
         .temperature-range:hover {
-            background-color: rgba(46, 90, 66, 0.03);
-            padding-left: 8px;
-            padding-right: 8px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 15px;
+            padding-right: 15px;
+            border-radius: 6px;
+            transform: translateX(5px);
         }
+
         .temperature-range:last-child {
             border-bottom: none;
         }
+
         .range {
-            font-weight: 600;
-            color: var(--primary);
+            font-weight: 700;
+            color: var(--netflix-red);
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.95rem;
+            gap: 12px;
+            font-size: 1.1rem;
         }
+
         .recommendation-text {
-            color: var(--dark);
-            font-weight: 500;
-            font-size: 0.95rem;
+            color: var(--netflix-white);
+            font-weight: 600;
+            font-size: 1.1rem;
         }
-        .no-blanket { color: var(--success); font-weight: 600; }
-        .light-blanket { color: var(--warning); }
-        .medium-blanket { color: var(--primary); }
-        .heavy-blanket { color: var(--danger); }
+
+        /* Classes de couleur pour les recommandations */
+        .no-blanket { 
+            color: #00D2D3;
+            font-weight: 900;
+        }
+        .light-blanket { 
+            color: #00A8FF;
+            font-weight: 700;
+        }
+        .medium-blanket { 
+            color: #8E44AD;
+            font-weight: 700;
+        }
+        .heavy-blanket { 
+            color: #E50914;
+            font-weight: 700;
+        }
 
         /* Indicateur d'état de tonte */
         .tonte-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
+            gap: 10px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-left: 10px;
-            background-color: rgba(46, 90, 66, 0.1);
-            color: var(--primary);
-        }
-        .tonte-indicator.tondu {
-            background-color: rgba(46, 90, 66, 0.15);
-            color: var(--primary);
-        }
-        .tonte-indicator.non-tondu {
-            background-color: rgba(201, 169, 126, 0.15);
-            color: #8a6d3b;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-left: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        @media (min-width: 768px) {
-            body { padding: 20px; }
-            h1 { font-size: 2.4rem; }
-            .temperature-display { font-size: 4rem; }
-            .guide-grid {
-                flex-direction: row;
+        .tonte-indicator.tondu {
+            background: rgba(0, 210, 211, 0.2);
+            color: #00D2D3;
+        }
+
+        .tonte-indicator.non-tondu {
+            background: rgba(142, 68, 173, 0.2);
+            color: #8E44AD;
+        }
+
+        /* Message d'erreur */
+        .error-message {
+            color: var(--netflix-red);
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        /* Confirmation de sauvegarde */
+        .save-confirmation {
+            animation: netflixSlideIn 0.5s ease-out;
+        }
+
+        @keyframes netflixSlideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Pied de page */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--netflix-light-gray);
+            font-size: 1.1rem;
+            margin-top: 4rem;
+            border-top: 1px solid var(--netflix-gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
             }
-            .guide-card {
-                flex: 1;
+            
+            .history-section {
+                order: 2;
             }
+            
+            .input-section {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .temperature-display {
+                font-size: 3.5rem;
+            }
+            
+            .recommendation {
+                font-size: 1.8rem;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .radio-option {
+                min-width: auto;
+            }
+        }
+
+        /* Amélioration de l'accessibilité */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1><i class="fas fa-horse"></i> Couvertures pour <span id="horse-name">Aldo</span></h1>
+            <h1><i class="fas fa-horse" aria-hidden="true"></i> COUVERTURES POUR <span id="horse-name">ALDO</span></h1>
             <p class="subtitle">Pour <span id="owner-name">Stéphanie</span> – Propriétaire attentionnée</p>
-            <button class="settings-btn" id="open-settings">
-                <i class="fas fa-cog"></i>
+            <button class="settings-btn" id="open-settings" aria-label="Ouvrir les paramètres">
+                <i class="fas fa-cog" aria-hidden="true"></i>
             </button>
         </div>
     </header>
 
-    <div class="container">
-        <div class="input-section">
-            <div class="form-group">
-                <label for="temperature"><i class="fas fa-thermometer-half"></i> Température minimale nocturne (°C)</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-temperature-low"></i>
-                    <input type="number" id="temperature" placeholder="Ex: 5" min="-20" max="30" step="0.1" inputmode="decimal">
+    <main class="container">
+        <div class="main-content">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="temperature"><i class="fas fa-thermometer-half" aria-hidden="true"></i> TEMPÉRATURE MINIMALE NOCTURNE (°C)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-temperature-low" aria-hidden="true"></i>
+                        <input type="number" id="temperature" placeholder="Ex: 5" min="-20" max="30" step="0.1" inputmode="decimal" aria-describedby="temperature-help">
+                    </div>
+                    <div id="temperature-help" class="error-message" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Veuillez entrer une température valide entre -20°C et 30°C
+                    </div>
                 </div>
+
+                <div class="meteo-section">
+                    <div class="meteo-title">
+                        <i class="fas fa-cloud-sun" aria-hidden="true"></i> VÉRIFIER LA MÉTÉO
+                    </div>
+                    <div class="meteo-description">
+                        Consultez la température minimale nocturne sur Météo-France pour obtenir la recommandation adaptée.
+                    </div>
+                    <a href="https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100" target="_blank" rel="noopener" class="btn btn-meteo">
+                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> OUVRIR MÉTÉO-FRANCE
+                    </a>
+                </div>
+
+                <button id="open-guide" class="btn btn-outline">
+                    <i class="fas fa-book" aria-hidden="true"></i> AFFICHER LE GUIDE DES COUVERTURES
+                </button>
             </div>
 
-            <div class="meteo-section">
-                <div class="meteo-title">
-                    <i class="fas fa-cloud-sun"></i> Vérifier la météo
+            <!-- Section Historique -->
+            <div class="history-section">
+                <div class="history-header">
+                    <div class="history-title">
+                        <i class="fas fa-history"></i> HISTORIQUE
+                    </div>
+                    <div class="history-actions">
+                        <button class="history-btn" id="clear-history" title="Effacer l'historique">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        <button class="history-btn" id="toggle-history" title="Réduire/Agrandir">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="meteo-description">
-                    Consultez la température minimale nocturne sur Météo-France pour obtenir la recommandation adaptée.
+                <div class="history-list" id="history-list">
+                    <!-- Rempli dynamiquement -->
                 </div>
-                <a href="https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100" target="_blank" rel="noopener" class="btn btn-meteo">
-                    <i class="fas fa-external-link-alt"></i> Ouvrir Météo-France
-                </a>
             </div>
-
-            <button id="open-guide" class="btn btn-outline">
-                <i class="fas fa-book"></i> Afficher le guide des couvertures
-            </button>
         </div>
-    </div>
+    </main>
 
     <!-- Popup Résultat -->
-    <div id="result-modal" class="modal-overlay">
+    <div id="result-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="result-title">
         <div class="modal">
             <div class="modal-header">
                 <div class="modal-title">
-                    <i class="fas fa-horse"></i> Recommandation pour <span id="horse-name-3">Aldo</span>
+                    <i class="fas fa-horse" aria-hidden="true"></i> 
+                    <span id="result-title">RECOMMANDATION POUR <span id="horse-name-3">ALDO</span></span>
                     <span id="tonte-indicator-modal" class="tonte-indicator tondu">
-                        <i class="fas fa-cut"></i> Tondu
+                        <i class="fas fa-cut" aria-hidden="true"></i> TONDU
                     </span>
                 </div>
-                <button class="close-modal" id="close-result">&times;</button>
+                <button class="close-modal" id="close-result" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body" id="result-modal-body">
                 <!-- Rempli dynamiquement -->
@@ -590,64 +1033,64 @@
     </div>
 
     <!-- Popup Guide -->
-    <div id="guide-modal" class="modal-overlay">
+    <div id="guide-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="guide-title">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-book-open"></i> Guide des Couvertures</div>
-                <button class="close-modal" id="close-guide">&times;</button>
+                <div class="modal-title" id="guide-title"><i class="fas fa-book-open" aria-hidden="true"></i> GUIDE DES COUVERTURES</div>
+                <button class="close-modal" id="close-guide" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="guide-grid">
                     <div class="guide-card">
                         <div class="guide-header">
-                            <i class="fas fa-snowflake"></i> <span id="horse-name-4">Aldo</span> est Tondu
+                            <i class="fas fa-snowflake" aria-hidden="true"></i> <span id="horse-name-4">ALDO</span> EST TONDU
                         </div>
                         <div class="guide-body">
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 10° à 15°</span>
                                 <span class="recommendation-text light-blanket">Chemise d'écurie</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 5° à 10°</span>
                                 <span class="recommendation-text light-blanket">Polaire ou couverture (100–150 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> 0° à 5°</span>
                                 <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -5° à 0°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture chaude (300 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -10° à -5°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture épaisse (400 gr)</span>
                             </div>
                         </div>
                     </div>
                     <div class="guide-card">
                         <div class="guide-header">
-                            <i class="fas fa-wind"></i> <span id="horse-name-5">Aldo</span> n'est pas Tondu
+                            <i class="fas fa-wind" aria-hidden="true"></i> <span id="horse-name-5">ALDO</span> N'EST PAS TONDU
                         </div>
                         <div class="guide-body">
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 10° à 15°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 10° à 15°</span>
                                 <span class="recommendation-text no-blanket">Pas de couverture</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-high"></i> 5° à 10°</span>
+                                <span class="range"><i class="fas fa-temperature-high" aria-hidden="true"></i> 5° à 10°</span>
                                 <span class="recommendation-text light-blanket">Polaire ou couverture</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> 0° à 5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> 0° à 5°</span>
                                 <span class="recommendation-text light-blanket">Polaire (100 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -5° à 0°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -5° à 0°</span>
                                 <span class="recommendation-text medium-blanket">Couverture mi-saison (200 gr)</span>
                             </div>
                             <div class="temperature-range">
-                                <span class="range"><i class="fas fa-temperature-low"></i> -10° à -5°</span>
+                                <span class="range"><i class="fas fa-temperature-low" aria-hidden="true"></i> -10° à -5°</span>
                                 <span class="recommendation-text heavy-blanket">Couverture épaisse (300 gr)</span>
                             </div>
                         </div>
@@ -658,52 +1101,52 @@
     </div>
 
     <!-- Popup Paramètres -->
-    <div id="settings-modal" class="modal-overlay">
+    <div id="settings-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="settings-title">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title"><i class="fas fa-cog"></i> Paramètres</div>
-                <button class="close-modal" id="close-settings">&times;</button>
+                <div class="modal-title" id="settings-title"><i class="fas fa-cog" aria-hidden="true"></i> PARAMÈTRES</div>
+                <button class="close-modal" id="close-settings" aria-label="Fermer">&times;</button>
             </div>
             <div class="modal-body">
                 <form class="settings-form" id="settings-form">
                     <div class="settings-group">
                         <label class="settings-label" for="settings-horse-name">
-                            <i class="fas fa-horse"></i> Nom du cheval
+                            <i class="fas fa-horse" aria-hidden="true"></i> NOM DU CHEVAL
                         </label>
                         <div class="input-with-icon">
-                            <i class="fas fa-pencil-alt"></i>
+                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                             <input type="text" id="settings-horse-name" placeholder="Ex: Aldo" value="Aldo">
                         </div>
                     </div>
                     
                     <div class="settings-group">
                         <label class="settings-label">
-                            <i class="fas fa-cut"></i> État de la tonte
+                            <i class="fas fa-cut" aria-hidden="true"></i> ÉTAT DE LA TONTE
                         </label>
                         <div class="radio-group">
                             <div class="radio-option" id="settings-tondu-oui-option">
                                 <input type="radio" id="settings-tondu-oui" name="settings-tondu" value="oui" checked>
-                                <label for="settings-tondu-oui">Tondu</label>
+                                <label for="settings-tondu-oui">TONDU</label>
                             </div>
                             <div class="radio-option" id="settings-tondu-non-option">
                                 <input type="radio" id="settings-tondu-non" name="settings-tondu" value="non">
-                                <label for="settings-tondu-non">Non tondu</label>
+                                <label for="settings-tondu-non">NON TONDU</label>
                             </div>
                         </div>
                     </div>
                     
                     <div class="settings-group">
                         <label class="settings-label" for="settings-owner-name">
-                            <i class="fas fa-user"></i> Nom du propriétaire
+                            <i class="fas fa-user" aria-hidden="true"></i> NOM DU PROPRIÉTAIRE
                         </label>
                         <div class="input-with-icon">
-                            <i class="fas fa-pencil-alt"></i>
+                            <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                             <input type="text" id="settings-owner-name" placeholder="Ex: Stéphanie" value="Stéphanie">
                         </div>
                     </div>
                     
                     <button type="submit" class="btn btn-settings">
-                        <i class="fas fa-save"></i> Enregistrer les paramètres
+                        <i class="fas fa-save" aria-hidden="true"></i> ENREGISTRER LES PARAMÈTRES
                     </button>
                 </form>
             </div>
@@ -712,11 +1155,13 @@
 
     <footer>
         <div class="container">
-            <p><i class="fas fa-heart" style="color: var(--danger);"></i> Pour <span id="horse-name-6">Aldo</span> – <span id="owner-name-2">Stéphanie</span></p>
+            <p><i class="fas fa-heart" style="color: var(--netflix-red);" aria-hidden="true"></i> POUR <span id="horse-name-6">ALDO</span> – <span id="owner-name-2">STÉPHANIE</span></p>
         </div>
     </footer>
 
     <script>
+        // Le code JavaScript reste exactement le même
+        // Seul le style CSS a été modifié pour correspondre au style Netflix
         document.addEventListener('DOMContentLoaded', function () {
             // Éléments DOM
             const temperatureInput = document.getElementById('temperature');
@@ -731,6 +1176,10 @@
             const resultModalBody = document.getElementById('result-modal-body');
             const settingsForm = document.getElementById('settings-form');
             const tonteIndicatorModal = document.getElementById('tonte-indicator-modal');
+            const errorMessage = document.getElementById('temperature-help');
+            const historyList = document.getElementById('history-list');
+            const clearHistoryBtn = document.getElementById('clear-history');
+            const toggleHistoryBtn = document.getElementById('toggle-history');
             
             // Éléments pour les noms personnalisés
             const horseNameElements = [
@@ -764,6 +1213,9 @@
 
             // Variables d'état
             let isTondu = true;
+            let lastFocusedElement = null;
+            let isHistoryCollapsed = false;
+            let currentRecommendation = null;
 
             // Initialisation des paramètres
             function initializeSettings() {
@@ -787,38 +1239,197 @@
                     document.getElementById('settings-tondu-non').checked = !isTondu;
                     updateTonteIndicator();
                 }
+                
+                // Charger l'historique
+                loadHistory();
             }
             
             // Mise à jour du nom du cheval
             function updateHorseName(name) {
                 horseNameElements.forEach(element => {
-                    if (element) element.textContent = name;
+                    if (element) element.textContent = name.toUpperCase();
                 });
             }
             
             // Mise à jour du nom du propriétaire
             function updateOwnerName(name) {
                 ownerNameElements.forEach(element => {
-                    if (element) element.textContent = name;
+                    if (element) element.textContent = name.toUpperCase();
                 });
             }
             
             // Mise à jour de l'indicateur de tonte
             function updateTonteIndicator() {
                 if (isTondu) {
-                    tonteIndicatorModal.innerHTML = '<i class="fas fa-cut"></i> Tondu';
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-cut" aria-hidden="true"></i> TONDU';
                     tonteIndicatorModal.className = 'tonte-indicator tondu';
                 } else {
-                    tonteIndicatorModal.innerHTML = '<i class="fas fa-wind"></i> Non tondu';
+                    tonteIndicatorModal.innerHTML = '<i class="fas fa-wind" aria-hidden="true"></i> NON TONDU';
                     tonteIndicatorModal.className = 'tonte-indicator non-tondu';
+                }
+            }
+
+            // Validation de la température
+            function validateTemperature(temp) {
+                return !isNaN(temp) && temp >= -20 && temp <= 30;
+            }
+
+            // Sauvegarder une recommandation dans l'historique
+            function saveToHistory() {
+                if (!currentRecommendation) return;
+                
+                const history = getHistory();
+                const newEntry = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    temperature: currentRecommendation.temp,
+                    recommendation: currentRecommendation.recommendation,
+                    details: currentRecommendation.details,
+                    type: currentRecommendation.type,
+                    horseName: horseNameElements[0].textContent,
+                    isTondu: isTondu
+                };
+                
+                history.unshift(newEntry);
+                
+                // Garder seulement les 20 dernières entrées
+                if (history.length > 20) {
+                    history.splice(20);
+                }
+                
+                localStorage.setItem('blanketHistory', JSON.stringify(history));
+                loadHistory();
+                
+                // Afficher un message de confirmation
+                showSaveConfirmation();
+            }
+
+            // Afficher une confirmation de sauvegarde
+            function showSaveConfirmation() {
+                const existingAlert = document.querySelector('.save-confirmation');
+                if (existingAlert) existingAlert.remove();
+                
+                const alert = document.createElement('div');
+                alert.className = 'save-confirmation';
+                alert.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #00D2D3 0%, #00B4B5 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 15px 0; display: flex; align-items: center; gap: 15px; border: 2px solid rgba(255,255,255,0.3);">
+                        <i class="fas fa-check"></i>
+                        <span style="font-weight: 700;">RECOMMANDATION SAUVEGARDÉE DANS L'HISTORIQUE</span>
+                    </div>
+                `;
+                
+                document.querySelector('.history-section').insertBefore(alert, historyList);
+                
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+
+            // Obtenir l'historique depuis le localStorage
+            function getHistory() {
+                const history = localStorage.getItem('blanketHistory');
+                return history ? JSON.parse(history) : [];
+            }
+
+            // Charger l'historique dans l'interface
+            function loadHistory() {
+                const history = getHistory();
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="empty-history">
+                            <i class="fas fa-history"></i>
+                            <p>AUCUNE RECOMMANDATION ENREGISTRÉE</p>
+                            <p style="font-size: 1rem; margin-top: 1rem;">UTILISEZ LE BOUTON "SAUVEGARDER" POUR AJOUTER DES RECOMMANDATIONS À L'HISTORIQUE</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                historyList.innerHTML = history.map(entry => `
+                    <div class="history-item">
+                        <div class="history-date">${formatDate(entry.date)}</div>
+                        <div class="history-temp">${Math.round(entry.temperature)}°C</div>
+                        <div class="history-rec ${entry.type}-blanket">${entry.recommendation}</div>
+                        <button class="history-delete" onclick="deleteHistoryEntry(${entry.id})" aria-label="Supprimer cette entrée">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Formater la date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                if (date.toDateString() === today.toDateString()) {
+                    return "AUJOURD'HUI";
+                } else if (date.toDateString() === yesterday.toDateString()) {
+                    return "HIER";
+                } else {
+                    return date.toLocaleDateString('fr-FR', { 
+                        day: 'numeric', 
+                        month: 'short' 
+                    }).toUpperCase();
+                }
+            }
+
+            // Supprimer une entrée d'historique
+            window.deleteHistoryEntry = function(id) {
+                const history = getHistory();
+                const updatedHistory = history.filter(entry => entry.id !== id);
+                localStorage.setItem('blanketHistory', JSON.stringify(updatedHistory));
+                loadHistory();
+            };
+
+            // Effacer tout l'historique
+            function clearHistory() {
+                if (confirm("VOULEZ-VOUS VRAIMENT EFFACER TOUT L'HISTORIQUE ?")) {
+                    localStorage.removeItem('blanketHistory');
+                    loadHistory();
+                }
+            }
+
+            // Basculer l'affichage de l'historique
+            function toggleHistory() {
+                const historyContainer = document.querySelector('.history-list');
+                const toggleIcon = toggleHistoryBtn.querySelector('i');
+                
+                isHistoryCollapsed = !isHistoryCollapsed;
+                
+                if (isHistoryCollapsed) {
+                    historyContainer.style.maxHeight = '0';
+                    historyContainer.style.overflow = 'hidden';
+                    toggleIcon.className = 'fas fa-chevron-up';
+                } else {
+                    historyContainer.style.maxHeight = '500px';
+                    historyContainer.style.overflow = 'auto';
+                    toggleIcon.className = 'fas fa-chevron-down';
                 }
             }
 
             // Calcul de la recommandation
             function calculateRecommendation() {
                 const temp = parseFloat(temperatureInput.value);
+                const isValid = validateTemperature(temp);
+                
+                // Gestion des erreurs
+                if (!isValid && temperatureInput.value !== '') {
+                    errorMessage.style.display = 'flex';
+                    temperatureInput.style.borderColor = 'var(--netflix-red)';
+                    if (resultModal.classList.contains('active')) {
+                        resultModal.classList.remove('active');
+                    }
+                    return;
+                } else {
+                    errorMessage.style.display = 'none';
+                    temperatureInput.style.borderColor = 'var(--netflix-gray)';
+                }
 
-                if (isNaN(temp)) {
+                if (!isValid) {
                     if (resultModal.classList.contains('active')) {
                         resultModal.classList.remove('active');
                     }
@@ -843,25 +1454,59 @@
                         case "heavy": icon = "fas fa-horse-head"; colorClass = "heavy-blanket"; break;
                     }
 
+                    // Stocker la recommandation courante
+                    currentRecommendation = {
+                        temp: temp,
+                        recommendation: rec.recommendation,
+                        details: rec.details,
+                        type: rec.type
+                    };
+
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
-                        <div class="recommendation ${colorClass}"><i class="${icon}"></i> ${rec.recommendation}</div>
+                        <div class="recommendation ${colorClass}"><i class="${icon}" aria-hidden="true"></i> ${rec.recommendation.toUpperCase()}</div>
                         <div class="details">${rec.details}</div>
                         <div class="info">
-                            <i class="fas fa-info-circle"></i> 
-                            Recommandation pour ${horseNameElements[0].textContent} (${isTondu ? 'tondu' : 'non tondu'})
+                            <i class="fas fa-info-circle" aria-hidden="true"></i> 
+                            RECOMMANDATION POUR ${horseNameElements[0].textContent} (${isTondu ? 'TONDU' : 'NON TONDU'})
                         </div>
+                        <button class="btn btn-save" id="save-recommendation">
+                            <i class="fas fa-save"></i> SAUVEGARDER CETTE RECOMMANDATION
+                        </button>
                     `;
-                    resultModal.classList.add('active');
+                    
+                    openModal(resultModal);
+                    
+                    // Ajouter l'événement pour le bouton de sauvegarde
+                    document.getElementById('save-recommendation').addEventListener('click', saveToHistory);
                 } else {
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
-                        <div class="recommendation">Température hors plage</div>
+                        <div class="recommendation">TEMPORATURE HORS PLAGE</div>
                         <div class="details">La température n'est pas couverte par nos recommandations.</div>
-                        <div class="info"><i class="fas fa-info-circle"></i> Ouvrez le guide pour plus de détails.</div>
+                        <div class="info"><i class="fas fa-info-circle" aria-hidden="true"></i> OUVREZ LE GUIDE POUR PLUS DE DÉTAILS.</div>
                     `;
-                    resultModal.classList.add('active');
+                    openModal(resultModal);
                 }
+            }
+
+            // Gestion de l'ouverture des modales
+            function openModal(modal) {
+                lastFocusedElement = document.activeElement;
+                modal.setAttribute('aria-hidden', 'false');
+                modal.classList.add('active');
+                
+                // Focus sur le bouton de fermeture pour l'accessibilité
+                const closeBtn = modal.querySelector('.close-modal');
+                if (closeBtn) closeBtn.focus();
+            }
+
+            function closeModal(modal) {
+                modal.setAttribute('aria-hidden', 'true');
+                modal.classList.remove('active');
+                
+                // Retour au dernier élément focus pour l'accessibilité
+                if (lastFocusedElement) lastFocusedElement.focus();
             }
 
             // Événements d'entrée de température
@@ -887,7 +1532,7 @@
                 updateTonteIndicator();
                 
                 // Fermeture de la modale
-                settingsModal.classList.remove('active');
+                closeModal(settingsModal);
                 
                 // Recalcul de la recommandation si nécessaire
                 calculateRecommendation();
@@ -895,45 +1540,71 @@
 
             // Ouverture des modales
             openGuideBtn.addEventListener('click', () => {
-                guideModal.classList.add('active');
+                openModal(guideModal);
             });
 
             openSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.add('active');
+                openModal(settingsModal);
             });
 
             // Fermeture des modales
             closeResultBtn.addEventListener('click', () => {
-                resultModal.classList.remove('active');
+                closeModal(resultModal);
             });
 
             closeGuideBtn.addEventListener('click', () => {
-                guideModal.classList.remove('active');
+                closeModal(guideModal);
             });
 
             closeSettingsBtn.addEventListener('click', () => {
-                settingsModal.classList.remove('active');
+                closeModal(settingsModal);
             });
+
+            // Gestion de l'historique
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            toggleHistoryBtn.addEventListener('click', toggleHistory);
 
             // Fermeture des modales en cliquant à l'extérieur
             resultModal.addEventListener('click', (e) => {
-                if (e.target === resultModal) resultModal.classList.remove('active');
+                if (e.target === resultModal) closeModal(resultModal);
             });
 
             guideModal.addEventListener('click', (e) => {
-                if (e.target === guideModal) guideModal.classList.remove('active');
+                if (e.target === guideModal) closeModal(guideModal);
             });
 
             settingsModal.addEventListener('click', (e) => {
-                if (e.target === settingsModal) settingsModal.classList.remove('active');
+                if (e.target === settingsModal) closeModal(settingsModal);
             });
 
             // Fermeture des modales avec la touche Échap
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    resultModal.classList.remove('active');
-                    guideModal.classList.remove('active');
-                    settingsModal.classList.remove('active');
+                    closeModal(resultModal);
+                    closeModal(guideModal);
+                    closeModal(settingsModal);
+                }
+            });
+
+            // Gestion de la navigation au clavier dans les modales
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && document.querySelector('.modal-overlay.active')) {
+                    const modal = document.querySelector('.modal-overlay.active');
+                    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
                 }
             });
 
