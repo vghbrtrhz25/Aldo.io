@@ -23,6 +23,8 @@
             --shadow-netflix-sm: 0 4px 20px rgba(0, 0, 0, 0.4);
             --border-radius: 12px;
             --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --weather-blue: #00A8FF;
+            --weather-blue-dark: #0097E6;
         }
 
         /* Reset et styles de base */
@@ -191,7 +193,8 @@
         }
 
         input[type="number"], 
-        input[type="text"] {
+        input[type="text"],
+        select {
             width: 100%;
             padding: 18px 18px 18px 50px;
             border: 2px solid var(--netflix-gray);
@@ -200,16 +203,26 @@
             background: var(--netflix-dark-gray);
             color: var(--netflix-white);
             -webkit-appearance: none;
-            -moz-appearance: textfield;
+            -moz-appearance: none;
+            appearance: none;
             transition: var(--transition);
             font-weight: 500;
             font-family: 'Netflix Sans', sans-serif;
             min-height: 60px;
         }
 
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23E50914' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 12px;
+            padding-right: 50px;
+        }
+
         /* Amélioration pour mobile - taille de touche minimale */
         input[type="number"]:focus, 
-        input[type="text"]:focus {
+        input[type="text"]:focus,
+        select:focus {
             outline: none;
             border-color: var(--netflix-red);
             background: var(--netflix-black);
@@ -222,41 +235,149 @@
             margin: 0;
         }
 
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 1rem;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: 16px;
-            border: 2px solid var(--netflix-gray);
-            border-radius: 8px;
-            background: var(--netflix-dark-gray);
-            font-size: 1rem;
+        /* Section Météo Améliorée */
+        .meteo-section.enhanced {
+            background: rgba(0, 168, 255, 0.1);
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 2rem 0;
             transition: var(--transition);
-            font-weight: 500;
-            min-height: 60px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .radio-option:active {
+        .meteo-section.enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, var(--weather-blue) 0%, var(--weather-blue-dark) 100%);
+        }
+
+        .meteo-section.enhanced:active {
             transform: scale(0.98);
         }
 
-        .radio-option input {
-            margin-right: 12px;
-            transform: scale(1.3);
-            accent-color: var(--netflix-red);
+        .meteo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .radio-option.selected {
-            border-color: var(--netflix-red);
-            background: rgba(229, 9, 20, 0.1);
-            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.2);
+        .meteo-header span {
+            font-weight: 700;
+            color: var(--weather-blue);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .location-badge {
+            background: rgba(0, 168, 255, 0.2);
+            border: 2px solid rgba(0, 168, 255, 0.4);
+            color: var(--weather-blue);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .location-badge:active {
+            transform: scale(0.95);
+        }
+
+        .weather-widget {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .current-weather {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .temp-display {
+            text-align: center;
+        }
+
+        .temp-display span {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--weather-blue), #00D2D3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: block;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .temp-display small {
+            color: var(--netflix-light-gray);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .weather-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 168, 255, 0.3);
+            border-top: 4px solid var(--weather-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .weather-error {
+            text-align: center;
+            padding: 2rem;
+            color: var(--netflix-light-gray);
+        }
+
+        .weather-error i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--netflix-red);
+        }
+
+        .weather-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .weather-actions .btn {
+            flex: 1;
+            min-width: 140px;
         }
 
         /* Boutons style Netflix - Taille mobile optimale */
@@ -299,11 +420,18 @@
             outline: none;
         }
 
-        .btn-meteo {
-            background: linear-gradient(135deg, #00A8FF 0%, #0097E6 100%);
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: var(--shadow-netflix-sm) !important;
         }
 
-        .btn-meteo:hover {
+        .btn-meteo {
+            background: linear-gradient(135deg, var(--weather-blue) 0%, var(--weather-blue-dark) 100%);
+        }
+
+        .btn-meteo:hover:not(:disabled) {
             box-shadow: 0 10px 30px rgba(0, 168, 255, 0.4);
         }
 
@@ -313,8 +441,8 @@
             color: var(--netflix-red);
         }
 
-        .btn-outline:hover,
-        .btn-outline:focus {
+        .btn-outline:hover:not(:disabled),
+        .btn-outline:focus:not(:disabled) {
             background: var(--netflix-red);
             color: white;
             transform: translateY(-2px);
@@ -324,51 +452,72 @@
             background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
         }
 
-        /* Section météo */
-        .meteo-section {
-            background: rgba(0, 168, 255, 0.1);
-            border: 2px solid rgba(0, 168, 255, 0.3);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin: 2rem 0;
-            text-align: center;
+        /* Radio groups améliorés */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 1rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 16px;
+            border: 2px solid var(--netflix-gray);
+            border-radius: 8px;
+            background: var(--netflix-dark-gray);
+            font-size: 1rem;
             transition: var(--transition);
-            position: relative;
-            overflow: hidden;
+            font-weight: 500;
+            min-height: 60px;
         }
 
-        .meteo-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(135deg, #00A8FF 0%, #0097E6 100%);
-        }
-
-        .meteo-section:active {
+        .radio-option:active {
             transform: scale(0.98);
         }
 
-        .meteo-title {
-            font-weight: 700;
-            color: #00A8FF;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+        .radio-option input {
+            margin-right: 12px;
+            transform: scale(1.3);
+            accent-color: var(--netflix-red);
         }
 
-        .meteo-description {
-            color: var(--netflix-light-gray);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.5;
+        .radio-option.selected {
+            border-color: var(--netflix-red);
+            background: rgba(229, 9, 20, 0.1);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.2);
+        }
+
+        /* Chips de villes */
+        .city-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .city-chip {
+            background: rgba(0, 168, 255, 0.1);
+            border: 2px solid rgba(0, 168, 255, 0.3);
+            color: var(--weather-blue);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Netflix Sans', sans-serif;
+        }
+
+        .city-chip:hover {
+            background: rgba(0, 168, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .city-chip:active {
+            transform: scale(0.95);
         }
 
         /* Section Historique style Netflix */
@@ -898,6 +1047,100 @@
             border-top: 1px solid var(--netflix-gray);
         }
 
+        /* Styles pour la sélection de ville */
+        .city-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .city-card {
+            background: var(--netflix-gradient-card);
+            border: 2px solid var(--netflix-gray);
+            border-radius: var(--border-radius);
+            padding: 1.5rem 1rem;
+            color: var(--netflix-white);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            min-height: 100px;
+            font-family: 'Netflix Sans', sans-serif;
+        }
+
+        .city-card:hover {
+            border-color: var(--netflix-red);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+        }
+
+        .city-card:active {
+            transform: scale(0.95);
+        }
+
+        .city-card i {
+            font-size: 1.5rem;
+            color: var(--netflix-red);
+        }
+
+        .city-card span {
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Lien Météo France discret */
+        .meteo-france-link {
+            text-align: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .meteo-france-link a {
+            color: var(--netflix-light-gray);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.7;
+        }
+
+        .meteo-france-link a:hover {
+            color: var(--weather-blue);
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .meteo-france-link a i {
+            font-size: 0.7rem;
+        }
+
+        /* Style pour le sélecteur de villes */
+        .city-select-container {
+            position: relative;
+        }
+
+        .city-select-container i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--netflix-red);
+            z-index: 1;
+            font-size: 1.2rem;
+        }
+
+        .city-select-container select {
+            padding-left: 50px;
+        }
+
         /* ===== RESPONSIVE DESIGN ===== */
 
         /* Tablettes (768px et plus) */
@@ -943,6 +1186,18 @@
                 padding: 2rem;
             }
 
+            .meteo-section.enhanced {
+                padding: 2rem;
+            }
+
+            .weather-actions {
+                flex-direction: row;
+            }
+
+            .weather-actions .btn {
+                flex: 1;
+            }
+
             .radio-group {
                 flex-direction: row;
             }
@@ -966,6 +1221,10 @@
             .guide-card {
                 flex: 1;
             }
+
+            .city-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
         }
 
         /* Desktop (1024px et plus) */
@@ -982,6 +1241,10 @@
                 transform: translateY(-5px);
             }
 
+            .meteo-section.enhanced:hover {
+                transform: translateY(-5px);
+            }
+
             .guide-card:hover {
                 transform: translateY(-8px);
             }
@@ -992,6 +1255,10 @@
 
             .temperature-range:hover {
                 transform: translateX(5px);
+            }
+
+            .city-card:hover {
+                transform: translateY(-5px);
             }
         }
 
@@ -1014,7 +1281,8 @@
             }
 
             .input-section,
-            .history-section {
+            .history-section,
+            .meteo-section.enhanced {
                 padding: 1rem;
             }
 
@@ -1063,6 +1331,10 @@
             select {
                 font-size: 16px; /* Empêche le zoom automatique sur iOS */
             }
+
+            .city-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -1091,16 +1363,55 @@
                     </div>
                 </div>
 
-                <div class="meteo-section">
-                    <div class="meteo-title">
-                        <i class="fas fa-cloud-sun" aria-hidden="true"></i> VÉRIFIER LA MÉTÉO
+                <!-- Nouvelle Section Météo avec OpenMeteo -->
+                <div class="meteo-section enhanced">
+                    <div class="meteo-header">
+                        <span><i class="fas fa-satellite" aria-hidden="true"></i> MÉTÉO AUTOMATIQUE</span>
+                        <div class="location-badge" id="location-badge">
+                            <i class="fas fa-location-dot" aria-hidden="true"></i>
+                            <span id="current-location">Chargement...</span>
+                        </div>
                     </div>
-                    <div class="meteo-description">
-                        Consultez la température minimale nocturne sur Météo-France pour obtenir la recommandation adaptée.
+                    
+                    <div class="weather-widget" id="weather-widget">
+                        <div class="weather-loading" id="weather-loading">
+                            <div class="loading-spinner"></div>
+                            <p>Récupération de la météo...</p>
+                        </div>
+                        
+                        <div class="current-weather" id="current-weather" style="display: none;">
+                            <div class="temp-display">
+                                <span id="current-min-temp">--</span>
+                                <small>°C min cette nuit</small>
+                            </div>
+                            <button id="use-weather-temp" class="btn btn-meteo" disabled>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                UTILISER CETTE TEMPÉRATURE
+                            </button>
+                        </div>
+                        
+                        <div class="weather-error" id="weather-error" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Impossible de récupérer la météo</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Veuillez saisir la température manuellement</p>
+                        </div>
                     </div>
-                    <a href="https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100" target="_blank" rel="noopener" class="btn btn-meteo">
-                        <i class="fas fa-external-link-alt" aria-hidden="true"></i> OUVRIR MÉTÉO-FRANCE
-                    </a>
+                    
+                    <!-- SUPPRESSION DU BOUTON "AIX-LES-BAINS" - MAINTENANT UNIQUEMENT ACTUALISER -->
+                    <div class="weather-actions">
+                        <button id="refresh-weather" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i>
+                            ACTUALISER
+                        </button>
+                    </div>
+
+                    <!-- NOUVEAU : Lien discret vers Météo France -->
+                    <div class="meteo-france-link" id="meteo-france-link" style="display: none;">
+                        <a href="#" target="_blank" id="meteo-france-url">
+                            <i class="fas fa-external-link-alt"></i>
+                            Vérifier sur Météo France
+                        </a>
+                    </div>
                 </div>
 
                 <button id="open-guide" class="btn btn-outline">
@@ -1253,6 +1564,35 @@
                     </div>
                     
                     <div class="settings-group">
+                        <label class="settings-label">
+                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i> LOCALISATION
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option" id="location-auto-option">
+                                <input type="radio" id="location-auto" name="location-type" value="auto" checked>
+                                <label for="location-auto">AUTOMATIQUE (GPS)</label>
+                            </div>
+                            <div class="radio-option" id="location-manual-option">
+                                <input type="radio" id="location-manual" name="location-type" value="manual">
+                                <label for="location-manual">MANUELLE</label>
+                            </div>
+                        </div>
+                        
+                        <div id="manual-location-section" style="display: none; margin-top: 1rem;">
+                            <div class="city-select-container">
+                                <i class="fas fa-city" aria-hidden="true"></i>
+                                <select id="settings-city-select">
+                                    <option value="">Choisir une ville...</option>
+                                    <!-- Rempli dynamiquement par JavaScript -->
+                                </select>
+                            </div>
+                            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--netflix-light-gray);">
+                                <i class="fas fa-info-circle"></i> Sélectionnez une ville française compatible
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
                         <label class="settings-label" for="settings-owner-name">
                             <i class="fas fa-user" aria-hidden="true"></i> NOM DU PROPRIÉTAIRE
                         </label>
@@ -1266,6 +1606,54 @@
                         <i class="fas fa-save" aria-hidden="true"></i> ENREGISTRER LES PARAMÈTRES
                     </button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nouvelle Popup Sélection de Ville -->
+    <div id="city-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="city-title">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="city-title">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i> CHOISIR UNE VILLE
+                </div>
+                <button class="close-modal" id="close-city" aria-label="Fermer">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="city-grid">
+                    <button class="city-card" data-city="Aix-les-Bains">
+                        <i class="fas fa-mountain"></i>
+                        <span>AIX-LES-BAINS</span>
+                    </button>
+                    <button class="city-card" data-city="Chambéry">
+                        <i class="fas fa-alps"></i>
+                        <span>CHAMBÉRY</span>
+                    </button>
+                    <button class="city-card" data-city="Lyon">
+                        <i class="fas fa-city"></i>
+                        <span>LYON</span>
+                    </button>
+                    <button class="city-card" data-city="Grenoble">
+                        <i class="fas fa-mountain"></i>
+                        <span>GRENOBLE</span>
+                    </button>
+                    <button class="city-card" data-city="Paris">
+                        <i class="fas fa-landmark"></i>
+                        <span>PARIS</span>
+                    </button>
+                    <button class="city-card" data-city="Marseille">
+                        <i class="fas fa-sun"></i>
+                        <span>MARSEILLE</span>
+                    </button>
+                    <button class="city-card" data-city="Bordeaux">
+                        <i class="fas fa-wine-glass"></i>
+                        <span>BORDEAUX</span>
+                    </button>
+                    <button class="city-card" data-city="Toulouse">
+                        <i class="fas fa-brick"></i>
+                        <span>TOULOUSE</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1295,6 +1683,32 @@
             const historyList = document.getElementById('history-list');
             const clearHistoryBtn = document.getElementById('clear-history');
             const toggleHistoryBtn = document.getElementById('toggle-history');
+            
+            // Nouveaux éléments météo
+            const weatherWidget = document.getElementById('weather-widget');
+            const weatherLoading = document.getElementById('weather-loading');
+            const currentWeather = document.getElementById('current-weather');
+            const weatherError = document.getElementById('weather-error');
+            const currentMinTemp = document.getElementById('current-min-temp');
+            const currentLocation = document.getElementById('current-location');
+            const useWeatherTempBtn = document.getElementById('use-weather-temp');
+            const refreshWeatherBtn = document.getElementById('refresh-weather');
+            const locationBadge = document.getElementById('location-badge');
+            
+            // Nouveaux éléments pour le lien Météo France
+            const meteoFranceLink = document.getElementById('meteo-france-link');
+            const meteoFranceUrl = document.getElementById('meteo-france-url');
+            
+            // Éléments pour les paramètres de localisation
+            const locationAuto = document.getElementById('location-auto');
+            const locationManual = document.getElementById('location-manual');
+            const manualLocationSection = document.getElementById('manual-location-section');
+            const settingsCitySelect = document.getElementById('settings-city-select');
+            
+            // Nouveaux éléments pour la sélection de ville
+            const cityModal = document.getElementById('city-modal');
+            const closeCityBtn = document.getElementById('close-city');
+            const cityCards = document.querySelectorAll('.city-card');
             
             // Éléments pour les noms personnalisés
             const horseNameElements = [
@@ -1326,11 +1740,593 @@
                 { min: -10, max: -5, recommendation: "Couverture épaisse (300 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "heavy" }
             ];
 
+            // ==================== BASE DE DONNÉES DES VILLES AMÉLIORÉE ====================
+
+            // Base de données complète des villes françaises compatibles avec OpenMeteo
+            const citiesDatabase = {
+                // Région Auvergne-Rhône-Alpes
+                "Aix-les-Bains": { 
+                    lat: 45.6886, 
+                    lng: 5.9150,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Chambéry": { 
+                    lat: 45.5646, 
+                    lng: 5.9178,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/chambery/73000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Lyon": { 
+                    lat: 45.75, 
+                    lng: 4.85,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/lyon/69000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Grenoble": { 
+                    lat: 45.1667, 
+                    lng: 5.7167,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/grenoble/38000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Clermont-Ferrand": { 
+                    lat: 45.7833, 
+                    lng: 3.0833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/clermont-ferrand/63000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Saint-Étienne": { 
+                    lat: 45.4333, 
+                    lng: 4.3833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/saint-etienne/42000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                
+                // Île-de-France
+                "Paris": { 
+                    lat: 48.8566, 
+                    lng: 2.3522,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/paris/75000",
+                    region: "Île-de-France"
+                },
+                "Versailles": { 
+                    lat: 48.8014, 
+                    lng: 2.1301,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/versailles/78000",
+                    region: "Île-de-France"
+                },
+                
+                // Provence-Alpes-Côte d'Azur
+                "Marseille": { 
+                    lat: 43.2965, 
+                    lng: 5.3698,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/marseille/13000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Nice": { 
+                    lat: 43.7102, 
+                    lng: 7.2620,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nice/06000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Toulon": { 
+                    lat: 43.1242, 
+                    lng: 5.9281,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/toulon/83000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Avignon": { 
+                    lat: 43.9493, 
+                    lng: 4.8055,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/avignon/84000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                
+                // Occitanie
+                "Toulouse": { 
+                    lat: 43.6047, 
+                    lng: 1.4442,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/toulouse/31000",
+                    region: "Occitanie"
+                },
+                "Montpellier": { 
+                    lat: 43.6119, 
+                    lng: 3.8772,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/montpellier/34000",
+                    region: "Occitanie"
+                },
+                "Nîmes": { 
+                    lat: 43.8367, 
+                    lng: 4.3600,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nimes/30000",
+                    region: "Occitanie"
+                },
+                
+                // Nouvelle-Aquitaine
+                "Bordeaux": { 
+                    lat: 44.8378, 
+                    lng: -0.5792,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bordeaux/33000",
+                    region: "Nouvelle-Aquitaine"
+                },
+                "Pau": { 
+                    lat: 43.3000, 
+                    lng: -0.3700,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/pau/64000",
+                    region: "Nouvelle-Aquitaine"
+                },
+                "Bayonne": { 
+                    lat: 43.4833, 
+                    lng: -1.4833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bayonne/64100",
+                    region: "Nouvelle-Aquitaine"
+                },
+                
+                // Hauts-de-France
+                "Lille": { 
+                    lat: 50.6292, 
+                    lng: 3.0573,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/lille/59000",
+                    region: "Hauts-de-France"
+                },
+                "Amiens": { 
+                    lat: 49.8920, 
+                    lng: 2.2990,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/amiens/80000",
+                    region: "Hauts-de-France"
+                },
+                
+                // Normandie
+                "Rouen": { 
+                    lat: 49.4431, 
+                    lng: 1.1025,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/rouen/76000",
+                    region: "Normandie"
+                },
+                "Caen": { 
+                    lat: 49.1829, 
+                    lng: -0.3707,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/caen/14000",
+                    region: "Normandie"
+                },
+                
+                // Bretagne
+                "Rennes": { 
+                    lat: 48.1173, 
+                    lng: -1.6778,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/rennes/35000",
+                    region: "Bretagne"
+                },
+                "Brest": { 
+                    lat: 48.3904, 
+                    lng: -4.4861,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/brest/29200",
+                    region: "Bretagne"
+                },
+                
+                // Pays de la Loire
+                "Nantes": { 
+                    lat: 47.2181, 
+                    lng: -1.5528,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nantes/44000",
+                    region: "Pays de la Loire"
+                },
+                "Angers": { 
+                    lat: 47.4784, 
+                    lng: -0.5632,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/angers/49000",
+                    region: "Pays de la Loire"
+                },
+                
+                // Centre-Val de Loire
+                "Tours": { 
+                    lat: 47.3941, 
+                    lng: 0.6848,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/tours/37000",
+                    region: "Centre-Val de Loire"
+                },
+                "Orléans": { 
+                    lat: 47.9029, 
+                    lng: 1.9093,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/orleans/45000",
+                    region: "Centre-Val de Loire"
+                },
+                
+                // Bourgogne-Franche-Comté
+                "Dijon": { 
+                    lat: 47.3167, 
+                    lng: 5.0167,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/dijon/21000",
+                    region: "Bourgogne-Franche-Comté"
+                },
+                "Besançon": { 
+                    lat: 47.2400, 
+                    lng: 6.0200,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/besancon/25000",
+                    region: "Bourgogne-Franche-Comté"
+                },
+                
+                // Grand Est
+                "Strasbourg": { 
+                    lat: 48.5833, 
+                    lng: 7.7458,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/strasbourg/67000",
+                    region: "Grand Est"
+                },
+                "Nancy": { 
+                    lat: 48.6936, 
+                    lng: 6.1844,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nancy/54000",
+                    region: "Grand Est"
+                },
+                "Reims": { 
+                    lat: 49.2628, 
+                    lng: 4.0347,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/reims/51100",
+                    region: "Grand Est"
+                },
+                
+                // Corse
+                "Ajaccio": { 
+                    lat: 41.9267, 
+                    lng: 8.7369,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/ajaccio/20000",
+                    region: "Corse"
+                },
+                "Bastia": { 
+                    lat: 42.7000, 
+                    lng: 9.4500,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bastia/20200",
+                    region: "Corse"
+                }
+            };
+
             // Variables d'état
             let isTondu = true;
             let lastFocusedElement = null;
             let isHistoryCollapsed = false;
-            let lastSavedEntry = null; // Pour éviter les doublons
+            let lastSavedEntry = null;
+            let currentWeatherData = null;
+            let currentLocationType = 'auto'; // 'auto' ou 'manual'
+            let currentManualCity = 'Aix-les-Bains';
+
+            // ==================== FONCTIONS MÉTÉO CORRIGÉES ====================
+
+            // Récupérer la position de l'utilisateur
+            function getUserLocation() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error('Géolocalisation non supportée'));
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                type: 'auto'
+                            });
+                        },
+                        error => {
+                            console.error('Erreur géolocalisation:', error);
+                            reject(error);
+                        },
+                        { 
+                            timeout: 10000,
+                            enableHighAccuracy: false,
+                            maximumAge: 300000 // 5 minutes
+                        }
+                    );
+                });
+            }
+
+            // Récupérer les données météo depuis OpenMeteo
+            async function fetchWeatherData(lat, lng) {
+                try {
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_min,temperature_2m_max&timezone=auto&forecast_days=1`;
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Erreur API météo');
+                    
+                    const data = await response.json();
+                    
+                    return {
+                        minTemp: data.daily.temperature_2m_min[0],
+                        maxTemp: data.daily.temperature_2m_max[0],
+                        location: await getLocationName(lat, lng),
+                        coordinates: { lat, lng }
+                    };
+                } catch (error) {
+                    console.error('Erreur récupération météo:', error);
+                    throw error;
+                }
+            }
+
+            // === FONCTION getLocationName CORRIGÉE ===
+            async function getLocationName(lat, lng) {
+                try {
+                    // Essayer d'abord avec notre base de données de villes
+                    let closestCity = null;
+                    let minDistance = Number.MAX_VALUE;
+
+                    Object.entries(citiesDatabase).forEach(([cityName, coords]) => {
+                        const distance = Math.sqrt(
+                            Math.pow(coords.lat - lat, 2) + Math.pow(coords.lng - lng, 2)
+                        );
+                        // Seuil plus permissif : 1.0 degré au lieu de 0.5
+                        if (distance < minDistance && distance < 1.0) {
+                            minDistance = distance;
+                            closestCity = cityName;
+                        }
+                    });
+
+                    if (closestCity) {
+                        return closestCity;
+                    }
+
+                    // Si pas de ville proche, utiliser un nom générique positif
+                    return "Localisation GPS";
+
+                } catch (error) {
+                    console.error('Erreur géocodage:', error);
+                    return "Localisation GPS";
+                }
+            }
+
+            // === NOUVELLE FONCTION : Remplir le sélecteur de villes ===
+            function populateCitySelect() {
+                // Vider le sélecteur
+                settingsCitySelect.innerHTML = '<option value="">Choisir une ville...</option>';
+                
+                // Trier les villes par région puis par nom
+                const sortedCities = Object.keys(citiesDatabase).sort((a, b) => {
+                    if (citiesDatabase[a].region === citiesDatabase[b].region) {
+                        return a.localeCompare(b);
+                    }
+                    return citiesDatabase[a].region.localeCompare(citiesDatabase[b].region);
+                });
+                
+                // Ajouter les villes groupées par région
+                let currentRegion = '';
+                sortedCities.forEach(cityName => {
+                    const city = citiesDatabase[cityName];
+                    
+                    // Ajouter un groupe si la région change
+                    if (city.region !== currentRegion) {
+                        currentRegion = city.region;
+                        const group = document.createElement('optgroup');
+                        group.label = currentRegion;
+                        settingsCitySelect.appendChild(group);
+                    }
+                    
+                    // Ajouter l'option de ville
+                    const option = document.createElement('option');
+                    option.value = cityName;
+                    option.textContent = cityName;
+                    settingsCitySelect.appendChild(option);
+                });
+                
+                // Sélectionner la ville actuelle
+                settingsCitySelect.value = currentManualCity;
+            }
+
+            // Charger et afficher la météo selon le type de localisation
+            async function loadWeather() {
+                showWeatherLoading();
+                
+                try {
+                    let weatherData;
+                    
+                    if (currentLocationType === 'auto') {
+                        // Mode automatique - géolocalisation
+                        const location = await getUserLocation();
+                        weatherData = await fetchWeatherData(location.lat, location.lng);
+                    } else {
+                        // Mode manuel - ville prédéfinie
+                        const cityCoords = citiesDatabase[currentManualCity];
+                        if (!cityCoords) {
+                            throw new Error('Ville non trouvée');
+                        }
+                        weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
+                        // Forcer l'affichage du nom de la ville en mode manuel
+                        weatherData.location = currentManualCity;
+                    }
+                    
+                    currentWeatherData = weatherData;
+                    displayWeatherData(weatherData);
+                    
+                    // Sauvegarder les préférences
+                    saveLocationPreferences();
+                    
+                } catch (error) {
+                    console.error('Erreur chargement météo:', error);
+                    showWeatherError();
+                    
+                    // Essayer de charger la dernière localisation sauvegardée
+                    try {
+                        const lastLocation = localStorage.getItem('lastLocation');
+                        if (lastLocation) {
+                            const location = JSON.parse(lastLocation);
+                            const weatherData = await fetchWeatherData(location.lat, location.lng);
+                            currentWeatherData = weatherData;
+                            displayWeatherData(weatherData);
+                            return;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Erreur fallback:', fallbackError);
+                        // Final fallback: utiliser Aix-les-Bains
+                        await useAixLesBainsAsFallback();
+                    }
+                }
+            }
+
+            // === FONCTION displayWeatherData CORRIGÉE ===
+            function displayWeatherData(weatherData) {
+                currentMinTemp.textContent = Math.round(weatherData.minTemp);
+                
+                // Afficher le nom de la localisation (même si c'est "Localisation GPS")
+                currentLocation.textContent = weatherData.location;
+                
+                // Mettre à jour le badge de localisation avec une couleur appropriée
+                updateLocationBadgeStyle(weatherData.location);
+                
+                // Activer le bouton d'utilisation
+                useWeatherTempBtn.disabled = false;
+                
+                // Afficher la section météo
+                weatherLoading.style.display = 'none';
+                weatherError.style.display = 'none';
+                currentWeather.style.display = 'flex';
+                
+                // Mettre à jour le lien Météo France
+                updateMeteoFranceLink(weatherData.location);
+                
+                // Sauvegarder la dernière localisation réussie
+                localStorage.setItem('lastLocation', JSON.stringify({
+                    lat: weatherData.coordinates.lat,
+                    lng: weatherData.coordinates.lng,
+                    name: weatherData.location,
+                    timestamp: Date.now()
+                }));
+            }
+
+            // === NOUVELLE FONCTION : Mettre à jour le lien Météo France ===
+            function updateMeteoFranceLink(locationName) {
+                if (citiesDatabase[locationName] && citiesDatabase[locationName].meteofrance) {
+                    // Ville reconnue - afficher le lien
+                    meteoFranceUrl.href = citiesDatabase[locationName].meteofrance;
+                    meteoFranceLink.style.display = 'block';
+                } else {
+                    // Ville non reconnue ou "Localisation GPS" - cacher le lien
+                    meteoFranceLink.style.display = 'none';
+                }
+            }
+
+            // Mettre à jour le style du badge de localisation
+            function updateLocationBadgeStyle(locationName) {
+                if (locationName === "Localisation GPS") {
+                    locationBadge.style.background = "rgba(0, 168, 255, 0.2)";
+                    locationBadge.style.borderColor = "rgba(0, 168, 255, 0.4)";
+                    locationBadge.style.color = "var(--weather-blue)";
+                } else {
+                    // Ville reconnue - on peut utiliser une couleur différente si souhaité
+                    locationBadge.style.background = "rgba(0, 210, 211, 0.2)";
+                    locationBadge.style.borderColor = "rgba(0, 210, 211, 0.4)";
+                    locationBadge.style.color = "#00D2D3";
+                }
+            }
+
+            // Afficher le chargement météo
+            function showWeatherLoading() {
+                weatherLoading.style.display = 'flex';
+                currentWeather.style.display = 'none';
+                weatherError.style.display = 'none';
+                useWeatherTempBtn.disabled = true;
+                currentLocation.textContent = 'Chargement...';
+                locationBadge.style.background = "rgba(255, 255, 255, 0.1)";
+                locationBadge.style.borderColor = "var(--netflix-gray)";
+                locationBadge.style.color = "var(--netflix-light-gray)";
+                meteoFranceLink.style.display = 'none';
+            }
+
+            // Afficher l'erreur météo
+            function showWeatherError() {
+                weatherLoading.style.display = 'none';
+                currentWeather.style.display = 'none';
+                weatherError.style.display = 'block';
+                useWeatherTempBtn.disabled = true;
+                currentLocation.textContent = 'Erreur';
+                locationBadge.style.background = "rgba(229, 9, 20, 0.2)";
+                locationBadge.style.borderColor = "rgba(229, 9, 20, 0.4)";
+                locationBadge.style.color = "var(--netflix-red)";
+                meteoFranceLink.style.display = 'none';
+            }
+
+            // Utiliser la température météo
+            function useWeatherTemperature() {
+                if (currentWeatherData && currentWeatherData.minTemp !== null) {
+                    temperatureInput.value = Math.round(currentWeatherData.minTemp);
+                    calculateRecommendation();
+                }
+            }
+
+            // === NOUVELLE FONCTION Fallback ===
+            async function useAixLesBainsAsFallback() {
+                try {
+                    const cityCoords = citiesDatabase['Aix-les-Bains'];
+                    const weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
+                    weatherData.location = 'Aix-les-Bains (secours)';
+                    currentWeatherData = weatherData;
+                    displayWeatherData(weatherData);
+                } catch (error) {
+                    // Dernier recours : afficher l'erreur
+                    showWeatherError();
+                }
+            }
+
+            // Sauvegarder les préférences de localisation
+            function saveLocationPreferences() {
+                const preferences = {
+                    locationType: currentLocationType,
+                    manualCity: currentManualCity,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('locationPreferences', JSON.stringify(preferences));
+            }
+
+            // Charger les préférences de localisation
+            function loadLocationPreferences() {
+                const saved = localStorage.getItem('locationPreferences');
+                if (saved) {
+                    const preferences = JSON.parse(saved);
+                    currentLocationType = preferences.locationType;
+                    currentManualCity = preferences.manualCity || 'Aix-les-Bains';
+                    
+                    // Mettre à jour l'interface des paramètres
+                    if (currentLocationType === 'manual') {
+                        locationManual.checked = true;
+                        locationAuto.checked = false;
+                        manualLocationSection.style.display = 'block';
+                        settingsCitySelect.value = currentManualCity;
+                    } else {
+                        locationAuto.checked = true;
+                        locationManual.checked = false;
+                        manualLocationSection.style.display = 'none';
+                    }
+                }
+            }
+
+            // ==================== NOUVELLE FONCTIONNALITÉ : SÉLECTION DE VILLE ====================
+
+            // Ouvrir le sélecteur de villes
+            function openCitySelector() {
+                openModal(cityModal);
+            }
+
+            // Sélectionner une ville
+            function selectCity(cityName) {
+                if (citiesDatabase[cityName]) {
+                    currentManualCity = cityName;
+                    currentLocationType = 'manual';
+                    
+                    // Mettre à jour les paramètres
+                    locationManual.checked = true;
+                    locationAuto.checked = false;
+                    manualLocationSection.style.display = 'block';
+                    settingsCitySelect.value = currentManualCity;
+                    
+                    // Charger la météo pour la nouvelle ville
+                    loadWeather();
+                    
+                    // Sauvegarder les préférences
+                    saveLocationPreferences();
+                    
+                    closeModal(cityModal);
+                }
+            }
+
+            // ==================== FONCTIONS EXISTANTES ====================
 
             // Initialisation des paramètres
             function initializeSettings() {
@@ -1355,8 +2351,17 @@
                     updateTonteIndicator();
                 }
                 
+                // Remplir le sélecteur de villes
+                populateCitySelect();
+                
+                // Charger les préférences de localisation
+                loadLocationPreferences();
+                
                 // Charger l'historique
                 loadHistory();
+                
+                // Charger la météo automatiquement
+                loadWeather();
             }
             
             // Mise à jour du nom du cheval
@@ -1389,24 +2394,23 @@
                 return !isNaN(temp) && temp >= -20 && temp <= 30;
             }
 
-            // Vérifier si une entrée similaire existe déjà (pour éviter les doublons)
+            // Vérifier si une entrée similaire existe déjà
             function isDuplicateEntry(temp, recommendation, type) {
                 const history = getHistory();
                 const now = new Date();
-                const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutes
+                const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
                 
                 return history.some(entry => {
                     const entryDate = new Date(entry.date);
                     return entry.temperature === temp && 
                            entry.recommendation === recommendation && 
                            entry.type === type &&
-                           entryDate > fiveMinutesAgo; // Seulement vérifier les 5 dernières minutes
+                           entryDate > fiveMinutesAgo;
                 });
             }
 
-            // Sauvegarder automatiquement une recommandation dans l'historique (sans doublons)
+            // Sauvegarder automatiquement une recommandation dans l'historique
             function saveToHistory(temp, recommendation, details, type) {
-                // Vérifier si cette entrée existe déjà récemment
                 if (isDuplicateEntry(temp, recommendation, type)) {
                     console.log('Entrée dupliquée détectée, non sauvegardée');
                     return;
@@ -1426,7 +2430,6 @@
                 
                 history.unshift(newEntry);
                 
-                // Garder seulement les 20 dernières entrées
                 if (history.length > 20) {
                     history.splice(20);
                 }
@@ -1434,7 +2437,6 @@
                 localStorage.setItem('blanketHistory', JSON.stringify(history));
                 loadHistory();
                 
-                // Mémoriser la dernière entrée sauvegardée
                 lastSavedEntry = newEntry;
             }
 
@@ -1529,7 +2531,6 @@
                 const temp = parseFloat(temperatureInput.value);
                 const isValid = validateTemperature(temp);
                 
-                // Gestion des erreurs
                 if (!isValid && temperatureInput.value !== '') {
                     errorMessage.style.display = 'flex';
                     temperatureInput.style.borderColor = 'var(--netflix-red)';
@@ -1567,7 +2568,6 @@
                         case "heavy": icon = "fas fa-horse-head"; colorClass = "heavy-blanket"; break;
                     }
 
-                    // Sauvegarder automatiquement dans l'historique (sans doublons)
                     saveToHistory(temp, rec.recommendation, rec.details, rec.type);
 
                     resultModalBody.innerHTML = `
@@ -1598,7 +2598,6 @@
                 modal.setAttribute('aria-hidden', 'false');
                 modal.classList.add('active');
                 
-                // Focus sur le bouton de fermeture pour l'accessibilité
                 const closeBtn = modal.querySelector('.close-modal');
                 if (closeBtn) closeBtn.focus();
             }
@@ -1607,14 +2606,91 @@
                 modal.setAttribute('aria-hidden', 'true');
                 modal.classList.remove('active');
                 
-                // Retour au dernier élément focus pour l'accessibilité
                 if (lastFocusedElement) lastFocusedElement.focus();
             }
 
-            // Événements d'entrée de température - UNIQUEMENT sur change pour éviter les doublons
+            // ==================== ÉVÉNEMENTS ====================
+
+            // Événements météo
+            useWeatherTempBtn.addEventListener('click', useWeatherTemperature);
+            refreshWeatherBtn.addEventListener('click', loadWeather);
+
+            // NOUVEL ÉVÉNEMENT : Clic sur le badge de localisation
+            locationBadge.addEventListener('click', openCitySelector);
+
+            // Effets visuels pour le badge de localisation
+            locationBadge.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('loading') && !this.classList.contains('error')) {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.boxShadow = '0 4px 15px rgba(229, 9, 20, 0.3)';
+                    this.style.background = 'rgba(229, 9, 20, 0.3)';
+                    this.style.borderColor = 'var(--netflix-red)';
+                }
+            });
+            
+            locationBadge.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+                // Restaurer la couleur originale
+                if (currentLocation.textContent === "Localisation GPS") {
+                    this.style.background = "rgba(0, 168, 255, 0.2)";
+                    this.style.borderColor = "rgba(0, 168, 255, 0.4)";
+                    this.style.color = "var(--weather-blue)";
+                } else if (currentLocation.textContent === "Erreur" || currentLocation.textContent === "Chargement...") {
+                    // Ne rien changer pour les états d'erreur/chargement
+                } else {
+                    this.style.background = "rgba(0, 210, 211, 0.2)";
+                    this.style.borderColor = "rgba(0, 210, 211, 0.4)";
+                    this.style.color = "#00D2D3";
+                }
+            });
+
+            // Événements de localisation dans les paramètres
+            locationAuto.addEventListener('change', function() {
+                if (this.checked) {
+                    currentLocationType = 'auto';
+                    manualLocationSection.style.display = 'none';
+                    loadWeather();
+                }
+            });
+
+            locationManual.addEventListener('change', function() {
+                if (this.checked) {
+                    currentLocationType = 'manual';
+                    manualLocationSection.style.display = 'block';
+                    loadWeather();
+                }
+            });
+
+            // NOUVEL ÉVÉNEMENT : Changement de ville dans le sélecteur
+            settingsCitySelect.addEventListener('change', function() {
+                if (this.value) {
+                    currentManualCity = this.value;
+                    if (currentLocationType === 'manual') {
+                        loadWeather();
+                    }
+                }
+            });
+
+            // Événements pour la sélection de ville
+            cityCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const selectedCity = this.getAttribute('data-city');
+                    selectCity(selectedCity);
+                });
+            });
+
+            closeCityBtn.addEventListener('click', () => {
+                closeModal(cityModal);
+            });
+
+            cityModal.addEventListener('click', (e) => {
+                if (e.target === cityModal) closeModal(cityModal);
+            });
+
+            // Événements existants
             temperatureInput.addEventListener('change', calculateRecommendation);
 
-            // Gestion du formulaire de paramètres
             settingsForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -1622,21 +2698,27 @@
                 const ownerName = document.getElementById('settings-owner-name').value;
                 isTondu = document.getElementById('settings-tondu-oui').checked;
                 
-                // Sauvegarde dans le localStorage
+                // Sauvegarder la localisation
+                currentLocationType = document.querySelector('input[name="location-type"]:checked').value;
+                if (currentLocationType === 'manual') {
+                    currentManualCity = settingsCitySelect.value;
+                }
+                
                 localStorage.setItem('horseName', horseName);
                 localStorage.setItem('ownerName', ownerName);
                 localStorage.setItem('isTondu', isTondu);
+                saveLocationPreferences();
                 
-                // Mise à jour de l'interface
                 updateHorseName(horseName);
                 updateOwnerName(ownerName);
                 updateTonteIndicator();
                 
-                // Fermeture de la modale
+                // Recharger la météo avec les nouveaux paramètres
+                loadWeather();
+                
                 closeModal(settingsModal);
             });
 
-            // Ouverture des modales
             openGuideBtn.addEventListener('click', () => {
                 openModal(guideModal);
             });
@@ -1645,7 +2727,6 @@
                 openModal(settingsModal);
             });
 
-            // Fermeture des modales
             closeResultBtn.addEventListener('click', () => {
                 closeModal(resultModal);
             });
@@ -1658,11 +2739,9 @@
                 closeModal(settingsModal);
             });
 
-            // Gestion de l'historique
             clearHistoryBtn.addEventListener('click', clearHistory);
             toggleHistoryBtn.addEventListener('click', toggleHistory);
 
-            // Fermeture des modales en cliquant à l'extérieur
             resultModal.addEventListener('click', (e) => {
                 if (e.target === resultModal) closeModal(resultModal);
             });
@@ -1675,16 +2754,15 @@
                 if (e.target === settingsModal) closeModal(settingsModal);
             });
 
-            // Fermeture des modales avec la touche Échap
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     closeModal(resultModal);
                     closeModal(guideModal);
                     closeModal(settingsModal);
+                    closeModal(cityModal);
                 }
             });
 
-            // Gestion de la navigation au clavier dans les modales
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Tab' && document.querySelector('.modal-overlay.active')) {
                     const modal = document.querySelector('.modal-overlay.active');
@@ -1706,7 +2784,8 @@
                 }
             });
 
-            // Initialisation
+            // ==================== INITIALISATION ====================
+
             initializeSettings();
             updateTonteIndicator();
         });
