@@ -324,11 +324,6 @@
             background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
         }
 
-        .btn-save {
-            background: linear-gradient(135deg, #00D2D3 0%, #00B4B5 100%);
-            margin-top: 1.5rem;
-        }
-
         /* Section météo */
         .meteo-section {
             background: rgba(0, 168, 255, 0.1);
@@ -893,16 +888,6 @@
             font-weight: 600;
         }
 
-        /* Confirmation de sauvegarde */
-        .save-confirmation {
-            animation: netflixSlideIn 0.5s ease-out;
-        }
-
-        @keyframes netflixSlideIn {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
         /* Pied de page */
         footer {
             text-align: center;
@@ -1292,8 +1277,6 @@
     </footer>
 
     <script>
-        // Le code JavaScript reste exactement le même
-        // Seul le style CSS a été optimisé pour le responsive mobile
         document.addEventListener('DOMContentLoaded', function () {
             // Éléments DOM
             const temperatureInput = document.getElementById('temperature');
@@ -1347,7 +1330,7 @@
             let isTondu = true;
             let lastFocusedElement = null;
             let isHistoryCollapsed = false;
-            let currentRecommendation = null;
+            let lastSavedEntry = null; // Pour éviter les doublons
 
             // Initialisation des paramètres
             function initializeSettings() {
@@ -1406,18 +1389,37 @@
                 return !isNaN(temp) && temp >= -20 && temp <= 30;
             }
 
-            // Sauvegarder une recommandation dans l'historique
-            function saveToHistory() {
-                if (!currentRecommendation) return;
+            // Vérifier si une entrée similaire existe déjà (pour éviter les doublons)
+            function isDuplicateEntry(temp, recommendation, type) {
+                const history = getHistory();
+                const now = new Date();
+                const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutes
+                
+                return history.some(entry => {
+                    const entryDate = new Date(entry.date);
+                    return entry.temperature === temp && 
+                           entry.recommendation === recommendation && 
+                           entry.type === type &&
+                           entryDate > fiveMinutesAgo; // Seulement vérifier les 5 dernières minutes
+                });
+            }
+
+            // Sauvegarder automatiquement une recommandation dans l'historique (sans doublons)
+            function saveToHistory(temp, recommendation, details, type) {
+                // Vérifier si cette entrée existe déjà récemment
+                if (isDuplicateEntry(temp, recommendation, type)) {
+                    console.log('Entrée dupliquée détectée, non sauvegardée');
+                    return;
+                }
                 
                 const history = getHistory();
                 const newEntry = {
                     id: Date.now(),
                     date: new Date().toISOString(),
-                    temperature: currentRecommendation.temp,
-                    recommendation: currentRecommendation.recommendation,
-                    details: currentRecommendation.details,
-                    type: currentRecommendation.type,
+                    temperature: temp,
+                    recommendation: recommendation,
+                    details: details,
+                    type: type,
                     horseName: horseNameElements[0].textContent,
                     isTondu: isTondu
                 };
@@ -1432,29 +1434,8 @@
                 localStorage.setItem('blanketHistory', JSON.stringify(history));
                 loadHistory();
                 
-                // Afficher un message de confirmation
-                showSaveConfirmation();
-            }
-
-            // Afficher une confirmation de sauvegarde
-            function showSaveConfirmation() {
-                const existingAlert = document.querySelector('.save-confirmation');
-                if (existingAlert) existingAlert.remove();
-                
-                const alert = document.createElement('div');
-                alert.className = 'save-confirmation';
-                alert.innerHTML = `
-                    <div style="background: linear-gradient(135deg, #00D2D3 0%, #00B4B5 100%); color: white; padding: 12px 16px; border-radius: 8px; margin: 12px 0; display: flex; align-items: center; gap: 12px; border: 2px solid rgba(255,255,255,0.3);">
-                        <i class="fas fa-check"></i>
-                        <span style="font-weight: 700;">RECOMMANDATION SAUVEGARDÉE DANS L'HISTORIQUE</span>
-                    </div>
-                `;
-                
-                document.querySelector('.history-section').insertBefore(alert, historyList);
-                
-                setTimeout(() => {
-                    alert.remove();
-                }, 3000);
+                // Mémoriser la dernière entrée sauvegardée
+                lastSavedEntry = newEntry;
             }
 
             // Obtenir l'historique depuis le localStorage
@@ -1471,8 +1452,8 @@
                     historyList.innerHTML = `
                         <div class="empty-history">
                             <i class="fas fa-history"></i>
-                            <p>AUCUNE RECOMMANDATION ENREGISTRÉE</p>
-                            <p style="font-size: 0.9rem; margin-top: 1rem;">UTILISEZ LE BOUTON "SAUVEGARDER" POUR AJOUTER DES RECOMMANDATIONS À L'HISTORIQUE</p>
+                            <p>AUCUNE RECOMMANDATION ENCORE</p>
+                            <p style="font-size: 0.9rem; margin-top: 1rem;">L'HISTORIQUE APPARAÎTRA AUTOMATIQUEMENT ICI</p>
                         </div>
                     `;
                     return;
@@ -1586,13 +1567,8 @@
                         case "heavy": icon = "fas fa-horse-head"; colorClass = "heavy-blanket"; break;
                     }
 
-                    // Stocker la recommandation courante
-                    currentRecommendation = {
-                        temp: temp,
-                        recommendation: rec.recommendation,
-                        details: rec.details,
-                        type: rec.type
-                    };
+                    // Sauvegarder automatiquement dans l'historique (sans doublons)
+                    saveToHistory(temp, rec.recommendation, rec.details, rec.type);
 
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
@@ -1602,15 +1578,9 @@
                             <i class="fas fa-info-circle" aria-hidden="true"></i> 
                             RECOMMANDATION POUR ${horseNameElements[0].textContent} (${isTondu ? 'TONDU' : 'NON TONDU'})
                         </div>
-                        <button class="btn btn-save" id="save-recommendation">
-                            <i class="fas fa-save"></i> SAUVEGARDER CETTE RECOMMANDATION
-                        </button>
                     `;
                     
                     openModal(resultModal);
-                    
-                    // Ajouter l'événement pour le bouton de sauvegarde
-                    document.getElementById('save-recommendation').addEventListener('click', saveToHistory);
                 } else {
                     resultModalBody.innerHTML = `
                         <div class="temperature-display">${Math.round(temp)}°C</div>
@@ -1641,8 +1611,7 @@
                 if (lastFocusedElement) lastFocusedElement.focus();
             }
 
-            // Événements d'entrée de température
-            temperatureInput.addEventListener('input', calculateRecommendation);
+            // Événements d'entrée de température - UNIQUEMENT sur change pour éviter les doublons
             temperatureInput.addEventListener('change', calculateRecommendation);
 
             // Gestion du formulaire de paramètres
@@ -1665,9 +1634,6 @@
                 
                 // Fermeture de la modale
                 closeModal(settingsModal);
-                
-                // Recalcul de la recommandation si nécessaire
-                calculateRecommendation();
             });
 
             // Ouverture des modales
