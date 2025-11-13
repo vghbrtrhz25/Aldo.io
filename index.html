@@ -1164,6 +1164,16 @@
             padding-left: 50px;
         }
 
+        /* Animations pour les messages */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         /* ===== RESPONSIVE DESIGN ===== */
 
         /* Tablettes (768px et plus) */
@@ -1374,7 +1384,7 @@
             <h1><i class="fas fa-horse" aria-hidden="true"></i> COUVERTURES POUR <span id="horse-name">ALDO</span></h1>
             <p class="subtitle">Pour <span id="owner-name">Stéphanie</span> – Propriétaire attentionnée</p>
             
-            <!-- NOUVEAU : Bouton de connexion -->
+            <!-- Bouton de connexion -->
             <button class="settings-btn" id="auth-btn" aria-label="Gestion du compte">
                 <i class="fas fa-user" aria-hidden="true"></i>
             </button>
@@ -1477,7 +1487,7 @@
         </div>
     </main>
 
-    <!-- NOUVELLE MODAL : Authentification -->
+    <!-- MODAL : Authentification -->
     <div id="auth-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-labelledby="auth-title">
         <div class="modal">
             <div class="modal-header">
@@ -1878,6 +1888,8 @@
 
             function initNetlifyIdentity() {
                 if (window.netlifyIdentity) {
+                    console.log('Netlify Identity chargé');
+                    
                     netlifyIdentity.on('init', user => {
                         console.log('Netlify Identity initialisé', user);
                         updateAuthUI(user);
@@ -1898,7 +1910,14 @@
                     
                     netlifyIdentity.on('error', err => {
                         console.error('Erreur Netlify Identity:', err);
+                        showAuthError();
                     });
+                    
+                    // Forcer l'initialisation
+                    netlifyIdentity.init();
+                } else {
+                    console.error('Netlify Identity non chargé');
+                    setTimeout(initNetlifyIdentity, 1000);
                 }
             }
 
@@ -1911,14 +1930,20 @@
                     profileSection.style.display = 'block';
                     userEmailDisplay.textContent = user.email;
                     
-                    // Charger les données utilisateur
+                    console.log('UI mise à jour: utilisateur connecté');
+                    
+                    // Charger les données utilisateur (vierges ou existantes)
                     loadUserData();
+                    
                 } else {
                     // Utilisateur non connecté
                     authBtn.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
                     authBtn.classList.remove('user-connected');
                     loginSection.style.display = 'block';
                     profileSection.style.display = 'none';
+                    userEmailDisplay.textContent = '';
+                    
+                    console.log('UI mise à jour: utilisateur non connecté');
                     
                     // Charger les données locales
                     loadLocalData();
@@ -1934,19 +1959,83 @@
                     locationPreferences: localStorage.getItem('locationPreferences')
                 };
                 
-                if (localHistory || localSettings.horseName) {
-                    const userData = {
-                        history: localHistory ? JSON.parse(localHistory) : [],
-                        settings: localSettings,
-                        migratedAt: new Date().toISOString()
-                    };
+                // DEMANDER à l'utilisateur s'il veut migrer ses données
+                if (localHistory && localHistory !== '[]') {
+                    const migrate = confirm(
+                        'Voulez-vous transférer votre historique et vos paramètres locaux vers votre nouveau compte ?\n\n' +
+                        '• OUI = Garder vos données existantes\n' +
+                        '• NON = Commencer avec des données vierges'
+                    );
                     
-                    localStorage.setItem(`userData_${user.id}`, JSON.stringify(userData));
-                    console.log('Données migrées vers le compte utilisateur');
+                    if (migrate) {
+                        const userData = {
+                            history: JSON.parse(localHistory),
+                            settings: localSettings,
+                            migratedAt: new Date().toISOString(),
+                            firstTimeUser: false
+                        };
+                        
+                        localStorage.setItem(`userData_${user.id}`, JSON.stringify(userData));
+                        console.log('Données migrées vers le compte utilisateur');
+                        
+                        // Recharger les données migrées
+                        loadUserData();
+                    } else {
+                        // Créer des données vierges pour le nouvel utilisateur
+                        createBlankUserData(user);
+                        console.log('Nouvel utilisateur avec données vierges');
+                    }
                     
-                    // Effacer les données locales après migration
+                    // Effacer les données locales après décision
                     localStorage.removeItem('blanketHistory');
+                } else {
+                    // Pas d'historique local, créer des données vierges
+                    createBlankUserData(user);
+                    console.log('Nouvel utilisateur avec données vierges');
                 }
+            }
+
+            function createBlankUserData(user) {
+                const blankData = {
+                    history: [],
+                    settings: {
+                        horseName: "Aldo",
+                        ownerName: "Stéphanie", 
+                        isTondu: "true",
+                        locationPreferences: JSON.stringify({
+                            locationType: 'auto',
+                            manualCity: 'Aix-les-Bains',
+                            timestamp: Date.now()
+                        })
+                    },
+                    createdAt: new Date().toISOString(),
+                    firstTimeUser: true
+                };
+                
+                localStorage.setItem(`userData_${user.id}`, JSON.stringify(blankData));
+                
+                // Appliquer les paramètres par défaut
+                applyDefaultSettings(blankData.settings);
+            }
+
+            function applyDefaultSettings(settings) {
+                document.getElementById('settings-horse-name').value = settings.horseName;
+                document.getElementById('settings-owner-name').value = settings.ownerName;
+                document.getElementById('settings-tondu-oui').checked = settings.isTondu === 'true';
+                document.getElementById('settings-tondu-non').checked = settings.isTondu !== 'true';
+                
+                updateHorseName(settings.horseName);
+                updateOwnerName(settings.ownerName);
+                updateTonteIndicator();
+                
+                // Charger les préférences de localisation
+                if (settings.locationPreferences) {
+                    const locPrefs = JSON.parse(settings.locationPreferences);
+                    localStorage.setItem('locationPreferences', settings.locationPreferences);
+                }
+                
+                // Vider l'historique affiché
+                loadHistory();
             }
 
             function loadUserData() {
@@ -1955,6 +2044,17 @@
                     const userData = localStorage.getItem(`userData_${user.id}`);
                     if (userData) {
                         const data = JSON.parse(userData);
+                        
+                        // Vérifier si c'est la première connexion
+                        if (data.firstTimeUser) {
+                            console.log('Première connexion de l\'utilisateur');
+                            // Marquer que ce n'est plus la première fois
+                            data.firstTimeUser = false;
+                            localStorage.setItem(`userData_${user.id}`, JSON.stringify(data));
+                            
+                            // Afficher un message de bienvenue
+                            showWelcomeMessage(user);
+                        }
                         
                         // Restaurer les paramètres
                         if (data.settings.horseName) {
@@ -1975,10 +2075,16 @@
                         // Restaurer l'historique
                         if (data.history.length > 0) {
                             localStorage.setItem('blanketHistory', JSON.stringify(data.history));
-                            loadHistory();
+                        } else {
+                            localStorage.setItem('blanketHistory', JSON.stringify([]));
                         }
                         
+                        loadHistory();
                         return data;
+                    } else {
+                        // Pas de données utilisateur, en créer des vierges
+                        createBlankUserData(user);
+                        return loadUserData();
                     }
                 }
                 return null;
@@ -2005,6 +2111,60 @@
                     
                     localStorage.setItem(`userData_${user.id}`, JSON.stringify(userData));
                 }
+            }
+
+            function showWelcomeMessage(user) {
+                // Petit message de bienvenue discret
+                const welcomeMsg = document.createElement('div');
+                welcomeMsg.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: var(--user-green);
+                    color: white;
+                    padding: 1rem;
+                    border-radius: 8px;
+                    box-shadow: var(--shadow-netflix);
+                    z-index: 10000;
+                    max-width: 300px;
+                    animation: slideIn 0.5s ease-out;
+                `;
+                
+                welcomeMsg.innerHTML = `
+                    <strong>👋 Bienvenue ${user.email} !</strong>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+                    Vous commencez avec des données vierges.
+                    </div>
+                `;
+                
+                document.body.appendChild(welcomeMsg);
+                
+                // Supprimer après 5 secondes
+                setTimeout(() => {
+                    welcomeMsg.style.animation = 'slideOut 0.5s ease-in';
+                    setTimeout(() => {
+                        if (welcomeMsg.parentNode) {
+                            welcomeMsg.parentNode.removeChild(welcomeMsg);
+                        }
+                    }, 500);
+                }, 5000);
+            }
+
+            function showAuthError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.background = 'rgba(229, 9, 20, 0.9)';
+                errorDiv.style.color = 'white';
+                errorDiv.style.padding = '1rem';
+                errorDiv.style.borderRadius = '8px';
+                errorDiv.style.marginBottom = '1rem';
+                errorDiv.style.textAlign = 'center';
+                errorDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Erreur de connexion</strong><br>
+                    <small>Vérifiez la configuration Netlify Identity</small>
+                `;
+                
+                loginSection.insertBefore(errorDiv, loginSection.firstChild);
             }
 
             // ==================== FONCTIONS MÉTÉO ====================
@@ -2577,7 +2737,10 @@
             });
 
             netlifyLoginBtn.addEventListener('click', () => {
-                netlifyIdentity.open('login');
+                console.log('🖱️ Clic sur login');
+                if (window.netlifyIdentity) {
+                    netlifyIdentity.open();
+                }
             });
 
             logoutBtn.addEventListener('click', () => {
