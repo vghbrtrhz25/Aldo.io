@@ -25,6 +25,10 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             --weather-blue: #00A8FF;
             --weather-blue-dark: #0097E6;
+            --export-green: #00D2D3;
+            --export-green-dark: #00A8A9;
+            --notification-orange: #FFA500;
+            --notification-orange-dark: #FF8C00;
         }
 
         /* Reset et styles de base */
@@ -450,6 +454,22 @@
 
         .btn-settings {
             background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, var(--export-green) 0%, var(--export-green-dark) 100%);
+        }
+
+        .btn-export:hover:not(:disabled) {
+            box-shadow: 0 10px 30px rgba(0, 210, 211, 0.4);
+        }
+
+        .btn-notification {
+            background: linear-gradient(135deg, var(--notification-orange) 0%, var(--notification-orange-dark) 100%);
+        }
+
+        .btn-notification:hover:not(:disabled) {
+            box-shadow: 0 10px 30px rgba(255, 165, 0, 0.4);
         }
 
         /* Radio groups améliorés */
@@ -1141,6 +1161,126 @@
             padding-left: 50px;
         }
 
+        /* ===== NOTIFICATIONS ===== */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 400px;
+            width: calc(100% - 40px);
+        }
+
+        .notification {
+            background: var(--netflix-gradient-card);
+            border: 2px solid;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-netflix);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.hide {
+            transform: translateX(400px);
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .notification.critical {
+            border-color: var(--netflix-red);
+        }
+
+        .notification.critical::before {
+            background: var(--netflix-red);
+        }
+
+        .notification.warning {
+            border-color: var(--notification-orange);
+        }
+
+        .notification.warning::before {
+            background: var(--notification-orange);
+        }
+
+        .notification.info {
+            border-color: var(--weather-blue);
+        }
+
+        .notification.info::before {
+            background: var(--weather-blue);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .notification.critical .notification-icon {
+            color: var(--netflix-red);
+        }
+
+        .notification.warning .notification-icon {
+            color: var(--notification-orange);
+        }
+
+        .notification.info .notification-icon {
+            color: var(--weather-blue);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 900;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .notification-message {
+            color: var(--netflix-light-gray);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--netflix-light-gray);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--netflix-white);
+        }
+
         /* ===== RESPONSIVE DESIGN ===== */
 
         /* Tablettes (768px et plus) */
@@ -1225,6 +1365,10 @@
             .city-grid {
                 grid-template-columns: 1fr 1fr 1fr;
             }
+
+            .notification-container {
+                max-width: 400px;
+            }
         }
 
         /* Desktop (1024px et plus) */
@@ -1293,6 +1437,11 @@
             .history-list {
                 max-height: 200px;
             }
+
+            .notification-container {
+                top: 10px;
+                right: 10px;
+            }
         }
 
         /* Support pour les appareils avec notch */
@@ -1308,6 +1457,11 @@
             
             footer {
                 padding-bottom: max(2rem, env(safe-area-inset-bottom));
+            }
+
+            .notification-container {
+                top: max(20px, env(safe-area-inset-top));
+                right: max(20px, env(safe-area-inset-right));
             }
         }
 
@@ -1339,6 +1493,9 @@
     </style>
 </head>
 <body>
+    <!-- Container pour les notifications -->
+    <div class="notification-container" id="notification-container"></div>
+
     <header>
         <div class="container">
             <h1><i class="fas fa-horse" aria-hidden="true"></i> COUVERTURES POUR <span id="horse-name">ALDO</span></h1>
@@ -1591,6 +1748,56 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- NOUVELLE SECTION : Notifications automatiques -->
+                    <div class="settings-group">
+                        <label class="settings-label">
+                            <i class="fas fa-bell" aria-hidden="true"></i> NOTIFICATIONS AUTOMATIQUES
+                        </label>
+                        <div style="background: rgba(255, 165, 0, 0.1); border: 2px solid rgba(255, 165, 0, 0.3); border-radius: 8px; padding: 1.5rem;">
+                            <p style="margin-bottom: 1rem; color: var(--netflix-white); font-weight: 600;">
+                                <i class="fas fa-temperature-low" style="color: var(--notification-orange);"></i>
+                                ALERTES TEMPÉRATURE CRITIQUE
+                            </p>
+                            
+                            <div class="radio-group">
+                                <div class="radio-option" id="notifications-on-option">
+                                    <input type="radio" id="notifications-on" name="notifications" value="on" checked>
+                                    <label for="notifications-on">ACTIVER LES NOTIFICATIONS</label>
+                                </div>
+                                <div class="radio-option" id="notifications-off-option">
+                                    <input type="radio" id="notifications-off" name="notifications" value="off">
+                                    <label for="notifications-off">DÉSACTIVER LES NOTIFICATIONS</label>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--netflix-light-gray);">
+                                <i class="fas fa-info-circle"></i> 
+                                Recevez des alertes pour les températures critiques :
+                                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                    <li><strong>Très froides</strong> : -5°C et moins</li>
+                                    <li><strong>Froides</strong> : -2°C à -4°C</li>
+                                    <li><strong>Chaudes</strong> : 15°C et plus (risque de surchauffe)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Test des notifications -->
+                    <div class="settings-group">
+                        <label class="settings-label">
+                            <i class="fas fa-vial" aria-hidden="true"></i> TESTER LES NOTIFICATIONS
+                        </label>
+                        <div style="text-align: center;">
+                            <button type="button" id="test-notification" class="btn btn-notification">
+                                <i class="fas fa-bell"></i>
+                                TESTER UNE NOTIFICATION
+                            </button>
+                            <p style="font-size: 0.9rem; color: var(--netflix-light-gray); margin-top: 0.5rem;">
+                                Vérifiez l'apparence des notifications
+                            </p>
+                        </div>
+                    </div>
                     
                     <div class="settings-group">
                         <label class="settings-label" for="settings-owner-name">
@@ -1599,6 +1806,26 @@
                         <div class="input-with-icon">
                             <i class="fas fa-pencil-alt" aria-hidden="true"></i>
                             <input type="text" id="settings-owner-name" placeholder="Ex: Stéphanie" value="Stéphanie">
+                        </div>
+                    </div>
+
+                    <!-- Section Export CSV dans les paramètres -->
+                    <div class="settings-group">
+                        <label class="settings-label">
+                            <i class="fas fa-file-export" aria-hidden="true"></i> EXPORTER L'HISTORIQUE
+                        </label>
+                        <div style="background: rgba(0, 210, 211, 0.1); border: 2px solid rgba(0, 210, 211, 0.3); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                            <p style="margin-bottom: 1rem; color: var(--netflix-white); font-weight: 600;">
+                                <i class="fas fa-download" style="color: var(--export-green);"></i>
+                                TÉLÉCHARGER L'HISTORIQUE COMPLET AU FORMAT CSV
+                            </p>
+                            <p style="font-size: 0.9rem; color: var(--netflix-light-gray); margin-bottom: 1.5rem;">
+                                Format compatible avec Excel, Google Sheets et autres tableurs
+                            </p>
+                            <button type="button" id="export-csv" class="btn btn-export">
+                                <i class="fas fa-file-csv"></i>
+                                EXPORTER L'HISTORIQUE CSV
+                            </button>
                         </div>
                     </div>
                     
@@ -1684,6 +1911,15 @@
             const clearHistoryBtn = document.getElementById('clear-history');
             const toggleHistoryBtn = document.getElementById('toggle-history');
             
+            // NOUVEAUX ÉLÉMENTS : Notifications
+            const notificationContainer = document.getElementById('notification-container');
+            const notificationsOn = document.getElementById('notifications-on');
+            const notificationsOff = document.getElementById('notifications-off');
+            const testNotificationBtn = document.getElementById('test-notification');
+            
+            // Élément d'export CSV dans les paramètres
+            const exportCsvBtn = document.getElementById('export-csv');
+            
             // Nouveaux éléments météo
             const weatherWidget = document.getElementById('weather-widget');
             const weatherLoading = document.getElementById('weather-loading');
@@ -1739,6 +1975,175 @@
                 { min: -5, max: 0, recommendation: "Couverture mi-saison (200 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "medium" },
                 { min: -10, max: -5, recommendation: "Couverture épaisse (300 gr)", details: "Utilisez une couverture d'extérieur ou d'écurie.", type: "heavy" }
             ];
+
+            // Variables d'état
+            let isTondu = true;
+            let lastFocusedElement = null;
+            let isHistoryCollapsed = false;
+            let lastSavedEntry = null;
+            let currentWeatherData = null;
+            let currentLocationType = 'auto'; // 'auto' ou 'manual'
+            let currentManualCity = 'Aix-les-Bains';
+            let notificationsEnabled = true;
+            let lastNotificationTime = 0;
+            const NOTIFICATION_COOLDOWN = 30000; // 30 secondes entre les notifications similaires
+
+            // ==================== NOUVELLES FONCTIONNALITÉS DE NOTIFICATION ====================
+
+            // Fonction pour afficher une notification
+            function showNotification(type, title, message, duration = 5000) {
+                if (!notificationsEnabled) return;
+
+                // Vérifier le cooldown pour éviter les notifications répétitives
+                const now = Date.now();
+                if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
+                    return;
+                }
+                lastNotificationTime = now;
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon = 'fas fa-info-circle';
+                if (type === 'critical') icon = 'fas fa-exclamation-triangle';
+                if (type === 'warning') icon = 'fas fa-exclamation-circle';
+                
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                    <button class="notification-close" aria-label="Fermer la notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                notificationContainer.appendChild(notification);
+
+                // Animation d'entrée
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Fermeture au clic
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => {
+                    hideNotification(notification);
+                });
+
+                // Fermeture automatique
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            hideNotification(notification);
+                        }
+                    }, duration);
+                }
+
+                return notification;
+            }
+
+            // Fonction pour masquer une notification
+            function hideNotification(notification) {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 400);
+            }
+
+            // Fonction pour vérifier les températures critiques
+            function checkCriticalTemperature(temp) {
+                if (!notificationsEnabled) return;
+
+                const horseName = horseNameElements[0].textContent;
+                
+                if (temp <= -5) {
+                    showNotification(
+                        'critical', 
+                        '🚨 TEMPÉRATURE TRÈS FROIDE', 
+                        `Il fait ${temp}°C cette nuit ! ${horseName} a besoin d'une couverture épaisse et d'une surveillance attentive.`,
+                        8000
+                    );
+                } else if (temp <= -2) {
+                    showNotification(
+                        'warning', 
+                        '⚠️ TEMPÉRATURE FROIDE', 
+                        `Il fait ${temp}°C cette nuit. Pensez à vérifier la couverture de ${horseName}.`,
+                        6000
+                    );
+                } else if (temp >= 15) {
+                    showNotification(
+                        'warning', 
+                        '🌡️ ATTENTION : RISQUE DE SURCHAUFFE', 
+                        `Il fait ${temp}°C cette nuit. ${horseName} risque d'avoir trop chaud avec une couverture.`,
+                        6000
+                    );
+                }
+            }
+
+            // Fonction pour tester les notifications
+            function testNotification() {
+                showNotification(
+                    'info',
+                    '🔔 TEST DE NOTIFICATION',
+                    'Ceci est un test de notification. Les alertes fonctionnent correctement !',
+                    4000
+                );
+            }
+
+            // ==================== FONCTIONNALITÉ D'EXPORT CSV ====================
+
+            // Fonction pour exporter l'historique en CSV
+            function exportHistoryToCSV() {
+                const history = getHistory();
+                if (history.length === 0) {
+                    alert("L'historique est vide. Aucune donnée à exporter.");
+                    return;
+                }
+
+                // En-têtes CSV
+                const headers = ['Date', 'Heure', 'Température (°C)', 'Recommandation', 'État de la tonte', 'Nom du cheval'];
+                let csvContent = headers.join(';') + '\n';
+
+                // Données
+                history.forEach(entry => {
+                    const date = new Date(entry.date);
+                    const dateStr = date.toLocaleDateString('fr-FR');
+                    const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    const row = [
+                        dateStr,
+                        timeStr,
+                        entry.temperature.toString().replace('.', ','),
+                        entry.recommendation,
+                        entry.isTondu ? 'Tondu' : 'Non tondu',
+                        entry.horseName || 'Aldo'
+                    ];
+                    csvContent += row.join(';') + '\n';
+                });
+
+                // Créer et télécharger le fichier
+                downloadFile(csvContent, 'historique-couvertures.csv', 'text/csv;charset=utf-8;');
+            }
+
+            // Fonction utilitaire pour télécharger un fichier
+            function downloadFile(content, fileName, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
 
             // ==================== BASE DE DONNÉES DES VILLES AMÉLIORÉE ====================
 
@@ -1981,15 +2386,6 @@
                 }
             };
 
-            // Variables d'état
-            let isTondu = true;
-            let lastFocusedElement = null;
-            let isHistoryCollapsed = false;
-            let lastSavedEntry = null;
-            let currentWeatherData = null;
-            let currentLocationType = 'auto'; // 'auto' ou 'manual'
-            let currentManualCity = 'Aix-les-Bains';
-
             // ==================== FONCTIONS MÉTÉO CORRIGÉES ====================
 
             // Récupérer la position de l'utilisateur
@@ -2136,6 +2532,9 @@
                     currentWeatherData = weatherData;
                     displayWeatherData(weatherData);
                     
+                    // Vérifier les températures critiques pour les notifications
+                    checkCriticalTemperature(weatherData.minTemp);
+                    
                     // Sauvegarder les préférences
                     saveLocationPreferences();
                     
@@ -2270,6 +2669,7 @@
                 const preferences = {
                     locationType: currentLocationType,
                     manualCity: currentManualCity,
+                    notificationsEnabled: notificationsEnabled,
                     timestamp: Date.now()
                 };
                 localStorage.setItem('locationPreferences', JSON.stringify(preferences));
@@ -2282,6 +2682,7 @@
                     const preferences = JSON.parse(saved);
                     currentLocationType = preferences.locationType;
                     currentManualCity = preferences.manualCity || 'Aix-les-Bains';
+                    notificationsEnabled = preferences.notificationsEnabled !== false; // true par défaut
                     
                     // Mettre à jour l'interface des paramètres
                     if (currentLocationType === 'manual') {
@@ -2293,6 +2694,13 @@
                         locationAuto.checked = true;
                         locationManual.checked = false;
                         manualLocationSection.style.display = 'none';
+                    }
+                    
+                    // Mettre à jour les notifications
+                    if (notificationsEnabled) {
+                        notificationsOn.checked = true;
+                    } else {
+                        notificationsOff.checked = true;
                     }
                 }
             }
@@ -2438,6 +2846,9 @@
                 loadHistory();
                 
                 lastSavedEntry = newEntry;
+                
+                // Vérifier les températures critiques pour les notifications
+                checkCriticalTemperature(temp);
             }
 
             // Obtenir l'historique depuis le localStorage
@@ -2611,6 +3022,38 @@
 
             // ==================== ÉVÉNEMENTS ====================
 
+            // NOUVEAUX ÉVÉNEMENTS : Notifications
+            testNotificationBtn.addEventListener('click', testNotification);
+
+            notificationsOn.addEventListener('change', function() {
+                if (this.checked) {
+                    notificationsEnabled = true;
+                    saveLocationPreferences();
+                    showNotification(
+                        'info',
+                        '🔔 NOTIFICATIONS ACTIVÉES',
+                        'Vous recevrez maintenant des alertes pour les températures critiques.',
+                        4000
+                    );
+                }
+            });
+
+            notificationsOff.addEventListener('change', function() {
+                if (this.checked) {
+                    notificationsEnabled = false;
+                    saveLocationPreferences();
+                    showNotification(
+                        'info',
+                        '🔕 NOTIFICATIONS DÉSACTIVÉES',
+                        'Les alertes température sont maintenant désactivées.',
+                        4000
+                    );
+                }
+            });
+
+            // Événement d'export CSV dans les paramètres
+            exportCsvBtn.addEventListener('click', exportHistoryToCSV);
+
             // Événements météo
             useWeatherTempBtn.addEventListener('click', useWeatherTemperature);
             refreshWeatherBtn.addEventListener('click', loadWeather);
@@ -2703,6 +3146,9 @@
                 if (currentLocationType === 'manual') {
                     currentManualCity = settingsCitySelect.value;
                 }
+                
+                // Sauvegarder les notifications
+                notificationsEnabled = document.getElementById('notifications-on').checked;
                 
                 localStorage.setItem('horseName', horseName);
                 localStorage.setItem('ownerName', ownerName);
