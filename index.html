@@ -5,15 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Couvertures pour Aldo</title>
     <meta name="description" content="Application pour déterminer la couverture adaptée à votre cheval selon la température">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#E50914">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Couvertures Aldo">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="manifest" href="manifest.json">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -1290,69 +1281,6 @@
             color: var(--netflix-white);
         }
 
-        /* ===== PWA INSTALL PROMPT ===== */
-        .pwa-install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--netflix-gradient-card);
-            border: 2px solid var(--netflix-red);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            z-index: 10000;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: var(--shadow-netflix);
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateX(-50%) translateY(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .pwa-install-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .pwa-install-text {
-            flex: 1;
-        }
-
-        .pwa-install-title {
-            font-weight: 900;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            color: var(--netflix-white);
-        }
-
-        .pwa-install-desc {
-            font-size: 0.8rem;
-            color: var(--netflix-light-gray);
-        }
-
-        .pwa-install-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .pwa-install-btn {
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            min-height: auto;
-            white-space: nowrap;
-        }
-
         /* ===== RESPONSIVE DESIGN ===== */
 
         /* Tablettes (768px et plus) */
@@ -1562,53 +1490,11 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Mode PWA standalone */
-        .pwa-standalone header {
-            padding-top: max(1.5rem, env(safe-area-inset-top));
-        }
-
-        .pwa-standalone .settings-btn {
-            top: max(1rem, env(safe-area-inset-top));
-        }
-
-        /* Améliorations pour le mode plein écran */
-        @media (display-mode: standalone) {
-            body {
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-        }
-
-        /* Cache la barre d'adresse sur mobile */
-        @media (max-width: 768px) {
-            body {
-                -webkit-overflow-scrolling: touch;
-            }
-        }
     </style>
 </head>
 <body>
     <!-- Container pour les notifications -->
     <div class="notification-container" id="notification-container"></div>
-
-    <!-- Prompt d'installation PWA -->
-    <div class="pwa-install-prompt" id="pwa-install-prompt" style="display: none;">
-        <div class="pwa-install-content">
-            <div class="pwa-install-text">
-                <div class="pwa-install-title">📱 INSTALLER L'APPLICATION</div>
-                <div class="pwa-install-desc">Utilisez l'app hors connexion comme une vraie application</div>
-            </div>
-            <div class="pwa-install-buttons">
-                <button class="btn pwa-install-btn" id="pwa-install-btn">
-                    <i class="fas fa-download"></i> Installer
-                </button>
-                <button class="btn btn-outline pwa-install-btn" id="pwa-dismiss-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <header>
         <div class="container">
@@ -2072,11 +1958,6 @@
                 document.getElementById('owner-name'),
                 document.getElementById('owner-name-2')
             ];
-
-            // Éléments PWA
-            const pwaInstallPrompt = document.getElementById('pwa-install-prompt');
-            const pwaInstallBtn = document.getElementById('pwa-install-btn');
-            const pwaDismissBtn = document.getElementById('pwa-dismiss-btn');
             
             // Paramètres des règles
             const rulesTondu = [
@@ -2107,92 +1988,753 @@
             let lastNotificationTime = 0;
             const NOTIFICATION_COOLDOWN = 30000; // 30 secondes entre les notifications similaires
 
-            // ==================== FONCTIONNALITÉS PWA ====================
+            // ==================== NOUVELLES FONCTIONNALITÉS DE NOTIFICATION ====================
 
-            // Enregistrement du Service Worker
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(function(registration) {
-                            console.log('Service Worker enregistré avec succès:', registration.scope);
-                        })
-                        .catch(function(error) {
-                            console.log('Échec de l\'enregistrement du Service Worker:', error);
-                        });
+            // Fonction pour afficher une notification
+            function showNotification(type, title, message, duration = 5000) {
+                if (!notificationsEnabled) return;
+
+                // Vérifier le cooldown pour éviter les notifications répétitives
+                const now = Date.now();
+                if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
+                    return;
+                }
+                lastNotificationTime = now;
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon = 'fas fa-info-circle';
+                if (type === 'critical') icon = 'fas fa-exclamation-triangle';
+                if (type === 'warning') icon = 'fas fa-exclamation-circle';
+                
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${title}</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                    <button class="notification-close" aria-label="Fermer la notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                notificationContainer.appendChild(notification);
+
+                // Animation d'entrée
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Fermeture au clic
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => {
+                    hideNotification(notification);
+                });
+
+                // Fermeture automatique
+                if (duration > 0) {
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            hideNotification(notification);
+                        }
+                    }, duration);
+                }
+
+                return notification;
+            }
+
+            // Fonction pour masquer une notification
+            function hideNotification(notification) {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 400);
+            }
+
+            // Fonction pour vérifier les températures critiques
+            function checkCriticalTemperature(temp) {
+                if (!notificationsEnabled) return;
+
+                const horseName = horseNameElements[0].textContent;
+                
+                if (temp <= -5) {
+                    showNotification(
+                        'critical', 
+                        '🚨 TEMPÉRATURE TRÈS FROIDE', 
+                        `Il fait ${temp}°C cette nuit ! ${horseName} a besoin d'une couverture épaisse et d'une surveillance attentive.`,
+                        8000
+                    );
+                } else if (temp <= -2) {
+                    showNotification(
+                        'warning', 
+                        '⚠️ TEMPÉRATURE FROIDE', 
+                        `Il fait ${temp}°C cette nuit. Pensez à vérifier la couverture de ${horseName}.`,
+                        6000
+                    );
+                } else if (temp >= 15) {
+                    showNotification(
+                        'warning', 
+                        '🌡️ ATTENTION : RISQUE DE SURCHAUFFE', 
+                        `Il fait ${temp}°C cette nuit. ${horseName} risque d'avoir trop chaud avec une couverture.`,
+                        6000
+                    );
+                }
+            }
+
+            // Fonction pour tester les notifications
+            function testNotification() {
+                showNotification(
+                    'info',
+                    '🔔 TEST DE NOTIFICATION',
+                    'Ceci est un test de notification. Les alertes fonctionnent correctement !',
+                    4000
+                );
+            }
+
+            // ==================== FONCTIONNALITÉ D'EXPORT CSV ====================
+
+            // Fonction pour exporter l'historique en CSV
+            function exportHistoryToCSV() {
+                const history = getHistory();
+                if (history.length === 0) {
+                    alert("L'historique est vide. Aucune donnée à exporter.");
+                    return;
+                }
+
+                // En-têtes CSV
+                const headers = ['Date', 'Heure', 'Température (°C)', 'Recommandation', 'État de la tonte', 'Nom du cheval'];
+                let csvContent = headers.join(';') + '\n';
+
+                // Données
+                history.forEach(entry => {
+                    const date = new Date(entry.date);
+                    const dateStr = date.toLocaleDateString('fr-FR');
+                    const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    const row = [
+                        dateStr,
+                        timeStr,
+                        entry.temperature.toString().replace('.', ','),
+                        entry.recommendation,
+                        entry.isTondu ? 'Tondu' : 'Non tondu',
+                        entry.horseName || 'Aldo'
+                    ];
+                    csvContent += row.join(';') + '\n';
+                });
+
+                // Créer et télécharger le fichier
+                downloadFile(csvContent, 'historique-couvertures.csv', 'text/csv;charset=utf-8;');
+            }
+
+            // Fonction utilitaire pour télécharger un fichier
+            function downloadFile(content, fileName, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            // ==================== BASE DE DONNÉES DES VILLES AMÉLIORÉE ====================
+
+            // Base de données complète des villes françaises compatibles avec OpenMeteo
+            const citiesDatabase = {
+                // Région Auvergne-Rhône-Alpes
+                "Aix-les-Bains": { 
+                    lat: 45.6886, 
+                    lng: 5.9150,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Chambéry": { 
+                    lat: 45.5646, 
+                    lng: 5.9178,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/chambery/73000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Lyon": { 
+                    lat: 45.75, 
+                    lng: 4.85,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/lyon/69000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Grenoble": { 
+                    lat: 45.1667, 
+                    lng: 5.7167,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/grenoble/38000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Clermont-Ferrand": { 
+                    lat: 45.7833, 
+                    lng: 3.0833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/clermont-ferrand/63000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                "Saint-Étienne": { 
+                    lat: 45.4333, 
+                    lng: 4.3833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/saint-etienne/42000",
+                    region: "Auvergne-Rhône-Alpes"
+                },
+                
+                // Île-de-France
+                "Paris": { 
+                    lat: 48.8566, 
+                    lng: 2.3522,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/paris/75000",
+                    region: "Île-de-France"
+                },
+                "Versailles": { 
+                    lat: 48.8014, 
+                    lng: 2.1301,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/versailles/78000",
+                    region: "Île-de-France"
+                },
+                
+                // Provence-Alpes-Côte d'Azur
+                "Marseille": { 
+                    lat: 43.2965, 
+                    lng: 5.3698,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/marseille/13000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Nice": { 
+                    lat: 43.7102, 
+                    lng: 7.2620,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nice/06000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Toulon": { 
+                    lat: 43.1242, 
+                    lng: 5.9281,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/toulon/83000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                "Avignon": { 
+                    lat: 43.9493, 
+                    lng: 4.8055,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/avignon/84000",
+                    region: "Provence-Alpes-Côte d'Azur"
+                },
+                
+                // Occitanie
+                "Toulouse": { 
+                    lat: 43.6047, 
+                    lng: 1.4442,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/toulouse/31000",
+                    region: "Occitanie"
+                },
+                "Montpellier": { 
+                    lat: 43.6119, 
+                    lng: 3.8772,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/montpellier/34000",
+                    region: "Occitanie"
+                },
+                "Nîmes": { 
+                    lat: 43.8367, 
+                    lng: 4.3600,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nimes/30000",
+                    region: "Occitanie"
+                },
+                
+                // Nouvelle-Aquitaine
+                "Bordeaux": { 
+                    lat: 44.8378, 
+                    lng: -0.5792,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bordeaux/33000",
+                    region: "Nouvelle-Aquitaine"
+                },
+                "Pau": { 
+                    lat: 43.3000, 
+                    lng: -0.3700,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/pau/64000",
+                    region: "Nouvelle-Aquitaine"
+                },
+                "Bayonne": { 
+                    lat: 43.4833, 
+                    lng: -1.4833,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bayonne/64100",
+                    region: "Nouvelle-Aquitaine"
+                },
+                
+                // Hauts-de-France
+                "Lille": { 
+                    lat: 50.6292, 
+                    lng: 3.0573,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/lille/59000",
+                    region: "Hauts-de-France"
+                },
+                "Amiens": { 
+                    lat: 49.8920, 
+                    lng: 2.2990,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/amiens/80000",
+                    region: "Hauts-de-France"
+                },
+                
+                // Normandie
+                "Rouen": { 
+                    lat: 49.4431, 
+                    lng: 1.1025,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/rouen/76000",
+                    region: "Normandie"
+                },
+                "Caen": { 
+                    lat: 49.1829, 
+                    lng: -0.3707,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/caen/14000",
+                    region: "Normandie"
+                },
+                
+                // Bretagne
+                "Rennes": { 
+                    lat: 48.1173, 
+                    lng: -1.6778,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/rennes/35000",
+                    region: "Bretagne"
+                },
+                "Brest": { 
+                    lat: 48.3904, 
+                    lng: -4.4861,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/brest/29200",
+                    region: "Bretagne"
+                },
+                
+                // Pays de la Loire
+                "Nantes": { 
+                    lat: 47.2181, 
+                    lng: -1.5528,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nantes/44000",
+                    region: "Pays de la Loire"
+                },
+                "Angers": { 
+                    lat: 47.4784, 
+                    lng: -0.5632,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/angers/49000",
+                    region: "Pays de la Loire"
+                },
+                
+                // Centre-Val de Loire
+                "Tours": { 
+                    lat: 47.3941, 
+                    lng: 0.6848,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/tours/37000",
+                    region: "Centre-Val de Loire"
+                },
+                "Orléans": { 
+                    lat: 47.9029, 
+                    lng: 1.9093,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/orleans/45000",
+                    region: "Centre-Val de Loire"
+                },
+                
+                // Bourgogne-Franche-Comté
+                "Dijon": { 
+                    lat: 47.3167, 
+                    lng: 5.0167,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/dijon/21000",
+                    region: "Bourgogne-Franche-Comté"
+                },
+                "Besançon": { 
+                    lat: 47.2400, 
+                    lng: 6.0200,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/besancon/25000",
+                    region: "Bourgogne-Franche-Comté"
+                },
+                
+                // Grand Est
+                "Strasbourg": { 
+                    lat: 48.5833, 
+                    lng: 7.7458,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/strasbourg/67000",
+                    region: "Grand Est"
+                },
+                "Nancy": { 
+                    lat: 48.6936, 
+                    lng: 6.1844,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/nancy/54000",
+                    region: "Grand Est"
+                },
+                "Reims": { 
+                    lat: 49.2628, 
+                    lng: 4.0347,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/reims/51100",
+                    region: "Grand Est"
+                },
+                
+                // Corse
+                "Ajaccio": { 
+                    lat: 41.9267, 
+                    lng: 8.7369,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/ajaccio/20000",
+                    region: "Corse"
+                },
+                "Bastia": { 
+                    lat: 42.7000, 
+                    lng: 9.4500,
+                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bastia/20200",
+                    region: "Corse"
+                }
+            };
+
+            // ==================== FONCTIONS MÉTÉO CORRIGÉES ====================
+
+            // Récupérer la position de l'utilisateur
+            function getUserLocation() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        reject(new Error('Géolocalisation non supportée'));
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude,
+                                type: 'auto'
+                            });
+                        },
+                        error => {
+                            console.error('Erreur géolocalisation:', error);
+                            reject(error);
+                        },
+                        { 
+                            timeout: 10000,
+                            enableHighAccuracy: false,
+                            maximumAge: 300000 // 5 minutes
+                        }
+                    );
                 });
             }
 
-            // Gestion de l'installation de la PWA
-            let deferredPrompt;
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // Empêche le navigateur de montrer l'invite d'installation
-                e.preventDefault();
-                // Stocke l'événement pour l'utiliser plus tard
-                deferredPrompt = e;
-                
-                // Affiche notre invite personnalisée après un délai
-                setTimeout(showInstallPromotion, 3000);
-            });
-
-            function showInstallPromotion() {
-                if (deferredPrompt && !isRunningStandalone()) {
-                    pwaInstallPrompt.style.display = 'block';
+            // Récupérer les données météo depuis OpenMeteo
+            async function fetchWeatherData(lat, lng) {
+                try {
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_min,temperature_2m_max&timezone=auto&forecast_days=1`;
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Erreur API météo');
+                    
+                    const data = await response.json();
+                    
+                    return {
+                        minTemp: data.daily.temperature_2m_min[0],
+                        maxTemp: data.daily.temperature_2m_max[0],
+                        location: await getLocationName(lat, lng),
+                        coordinates: { lat, lng }
+                    };
+                } catch (error) {
+                    console.error('Erreur récupération météo:', error);
+                    throw error;
                 }
             }
 
-            async function installApp() {
-                if (!deferredPrompt) return;
+            // === FONCTION getLocationName CORRIGÉE ===
+            async function getLocationName(lat, lng) {
+                try {
+                    // Essayer d'abord avec notre base de données de villes
+                    let closestCity = null;
+                    let minDistance = Number.MAX_VALUE;
+
+                    Object.entries(citiesDatabase).forEach(([cityName, coords]) => {
+                        const distance = Math.sqrt(
+                            Math.pow(coords.lat - lat, 2) + Math.pow(coords.lng - lng, 2)
+                        );
+                        // Seuil plus permissif : 1.0 degré au lieu de 0.5
+                        if (distance < minDistance && distance < 1.0) {
+                            minDistance = distance;
+                            closestCity = cityName;
+                        }
+                    });
+
+                    if (closestCity) {
+                        return closestCity;
+                    }
+
+                    // Si pas de ville proche, utiliser un nom générique positif
+                    return "Localisation GPS";
+
+                } catch (error) {
+                    console.error('Erreur géocodage:', error);
+                    return "Localisation GPS";
+                }
+            }
+
+            // === NOUVELLE FONCTION : Remplir le sélecteur de villes ===
+            function populateCitySelect() {
+                // Vider le sélecteur
+                settingsCitySelect.innerHTML = '<option value="">Choisir une ville...</option>';
                 
-                // Montre l'invite d'installation
-                deferredPrompt.prompt();
+                // Trier les villes par région puis par nom
+                const sortedCities = Object.keys(citiesDatabase).sort((a, b) => {
+                    if (citiesDatabase[a].region === citiesDatabase[b].region) {
+                        return a.localeCompare(b);
+                    }
+                    return citiesDatabase[a].region.localeCompare(citiesDatabase[b].region);
+                });
                 
-                // Attend que l'utilisateur réponde à l'invite
-                const { outcome } = await deferredPrompt.userChoice;
+                // Ajouter les villes groupées par région
+                let currentRegion = '';
+                sortedCities.forEach(cityName => {
+                    const city = citiesDatabase[cityName];
+                    
+                    // Ajouter un groupe si la région change
+                    if (city.region !== currentRegion) {
+                        currentRegion = city.region;
+                        const group = document.createElement('optgroup');
+                        group.label = currentRegion;
+                        settingsCitySelect.appendChild(group);
+                    }
+                    
+                    // Ajouter l'option de ville
+                    const option = document.createElement('option');
+                    option.value = cityName;
+                    option.textContent = cityName;
+                    settingsCitySelect.appendChild(option);
+                });
                 
-                if (outcome === 'accepted') {
-                    console.log('Utilisateur a accepté l\'installation');
-                    showNotification(
-                        'info',
-                        '✅ APPLICATION INSTALLÉE',
-                        'L\'application a été installée avec succès !',
-                        4000
-                    );
+                // Sélectionner la ville actuelle
+                settingsCitySelect.value = currentManualCity;
+            }
+
+            // Charger et afficher la météo selon le type de localisation
+            async function loadWeather() {
+                showWeatherLoading();
+                
+                try {
+                    let weatherData;
+                    
+                    if (currentLocationType === 'auto') {
+                        // Mode automatique - géolocalisation
+                        const location = await getUserLocation();
+                        weatherData = await fetchWeatherData(location.lat, location.lng);
+                    } else {
+                        // Mode manuel - ville prédéfinie
+                        const cityCoords = citiesDatabase[currentManualCity];
+                        if (!cityCoords) {
+                            throw new Error('Ville non trouvée');
+                        }
+                        weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
+                        // Forcer l'affichage du nom de la ville en mode manuel
+                        weatherData.location = currentManualCity;
+                    }
+                    
+                    currentWeatherData = weatherData;
+                    displayWeatherData(weatherData);
+                    
+                    // Vérifier les températures critiques pour les notifications
+                    checkCriticalTemperature(weatherData.minTemp);
+                    
+                    // Sauvegarder les préférences
+                    saveLocationPreferences();
+                    
+                } catch (error) {
+                    console.error('Erreur chargement météo:', error);
+                    showWeatherError();
+                    
+                    // Essayer de charger la dernière localisation sauvegardée
+                    try {
+                        const lastLocation = localStorage.getItem('lastLocation');
+                        if (lastLocation) {
+                            const location = JSON.parse(lastLocation);
+                            const weatherData = await fetchWeatherData(location.lat, location.lng);
+                            currentWeatherData = weatherData;
+                            displayWeatherData(weatherData);
+                            return;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Erreur fallback:', fallbackError);
+                        // Final fallback: utiliser Aix-les-Bains
+                        await useAixLesBainsAsFallback();
+                    }
+                }
+            }
+
+            // === FONCTION displayWeatherData CORRIGÉE ===
+            function displayWeatherData(weatherData) {
+                currentMinTemp.textContent = Math.round(weatherData.minTemp);
+                
+                // Afficher le nom de la localisation (même si c'est "Localisation GPS")
+                currentLocation.textContent = weatherData.location;
+                
+                // Mettre à jour le badge de localisation avec une couleur appropriée
+                updateLocationBadgeStyle(weatherData.location);
+                
+                // Activer le bouton d'utilisation
+                useWeatherTempBtn.disabled = false;
+                
+                // Afficher la section météo
+                weatherLoading.style.display = 'none';
+                weatherError.style.display = 'none';
+                currentWeather.style.display = 'flex';
+                
+                // Mettre à jour le lien Météo France
+                updateMeteoFranceLink(weatherData.location);
+                
+                // Sauvegarder la dernière localisation réussie
+                localStorage.setItem('lastLocation', JSON.stringify({
+                    lat: weatherData.coordinates.lat,
+                    lng: weatherData.coordinates.lng,
+                    name: weatherData.location,
+                    timestamp: Date.now()
+                }));
+            }
+
+            // === NOUVELLE FONCTION : Mettre à jour le lien Météo France ===
+            function updateMeteoFranceLink(locationName) {
+                if (citiesDatabase[locationName] && citiesDatabase[locationName].meteofrance) {
+                    // Ville reconnue - afficher le lien
+                    meteoFranceUrl.href = citiesDatabase[locationName].meteofrance;
+                    meteoFranceLink.style.display = 'block';
                 } else {
-                    console.log('Utilisateur a refusé l\'installation');
+                    // Ville non reconnue ou "Localisation GPS" - cacher le lien
+                    meteoFranceLink.style.display = 'none';
                 }
-                
-                // Nettoie la référence
-                deferredPrompt = null;
-                
-                // Cache l'invite
-                pwaInstallPrompt.style.display = 'none';
             }
 
-            function dismissInstallPrompt() {
-                pwaInstallPrompt.style.display = 'none';
-                // Stocker la préférence pour ne pas montrer à nouveau
-                localStorage.setItem('pwaPromptDismissed', 'true');
+            // Mettre à jour le style du badge de localisation
+            function updateLocationBadgeStyle(locationName) {
+                if (locationName === "Localisation GPS") {
+                    locationBadge.style.background = "rgba(0, 168, 255, 0.2)";
+                    locationBadge.style.borderColor = "rgba(0, 168, 255, 0.4)";
+                    locationBadge.style.color = "var(--weather-blue)";
+                } else {
+                    // Ville reconnue - on peut utiliser une couleur différente si souhaité
+                    locationBadge.style.background = "rgba(0, 210, 211, 0.2)";
+                    locationBadge.style.borderColor = "rgba(0, 210, 211, 0.4)";
+                    locationBadge.style.color = "#00D2D3";
+                }
             }
 
-            // Détection du mode d'affichage PWA
-            function isRunningStandalone() {
-                return window.matchMedia('(display-mode: standalone)').matches || 
-                       window.navigator.standalone === true;
+            // Afficher le chargement météo
+            function showWeatherLoading() {
+                weatherLoading.style.display = 'flex';
+                currentWeather.style.display = 'none';
+                weatherError.style.display = 'none';
+                useWeatherTempBtn.disabled = true;
+                currentLocation.textContent = 'Chargement...';
+                locationBadge.style.background = "rgba(255, 255, 255, 0.1)";
+                locationBadge.style.borderColor = "var(--netflix-gray)";
+                locationBadge.style.color = "var(--netflix-light-gray)";
+                meteoFranceLink.style.display = 'none';
             }
 
-            if (isRunningStandalone()) {
-                document.documentElement.classList.add('pwa-standalone');
-                console.log('Application exécutée en mode PWA');
+            // Afficher l'erreur météo
+            function showWeatherError() {
+                weatherLoading.style.display = 'none';
+                currentWeather.style.display = 'none';
+                weatherError.style.display = 'block';
+                useWeatherTempBtn.disabled = true;
+                currentLocation.textContent = 'Erreur';
+                locationBadge.style.background = "rgba(229, 9, 20, 0.2)";
+                locationBadge.style.borderColor = "rgba(229, 9, 20, 0.4)";
+                locationBadge.style.color = "var(--netflix-red)";
+                meteoFranceLink.style.display = 'none';
             }
 
-            window.addEventListener('appinstalled', () => {
-                console.log('PWA installée avec succès');
-                pwaInstallPrompt.style.display = 'none';
-                deferredPrompt = null;
-            });
+            // Utiliser la température météo
+            function useWeatherTemperature() {
+                if (currentWeatherData && currentWeatherData.minTemp !== null) {
+                    temperatureInput.value = Math.round(currentWeatherData.minTemp);
+                    calculateRecommendation();
+                }
+            }
 
-            // ==================== FONCTIONS MANQUANTES CORRIGÉES ====================
+            // === NOUVELLE FONCTION Fallback ===
+            async function useAixLesBainsAsFallback() {
+                try {
+                    const cityCoords = citiesDatabase['Aix-les-Bains'];
+                    const weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
+                    weatherData.location = 'Aix-les-Bains (secours)';
+                    currentWeatherData = weatherData;
+                    displayWeatherData(weatherData);
+                } catch (error) {
+                    // Dernier recours : afficher l'erreur
+                    showWeatherError();
+                }
+            }
+
+            // Sauvegarder les préférences de localisation
+            function saveLocationPreferences() {
+                const preferences = {
+                    locationType: currentLocationType,
+                    manualCity: currentManualCity,
+                    notificationsEnabled: notificationsEnabled,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('locationPreferences', JSON.stringify(preferences));
+            }
+
+            // Charger les préférences de localisation
+            function loadLocationPreferences() {
+                const saved = localStorage.getItem('locationPreferences');
+                if (saved) {
+                    const preferences = JSON.parse(saved);
+                    currentLocationType = preferences.locationType;
+                    currentManualCity = preferences.manualCity || 'Aix-les-Bains';
+                    notificationsEnabled = preferences.notificationsEnabled !== false; // true par défaut
+                    
+                    // Mettre à jour l'interface des paramètres
+                    if (currentLocationType === 'manual') {
+                        locationManual.checked = true;
+                        locationAuto.checked = false;
+                        manualLocationSection.style.display = 'block';
+                        settingsCitySelect.value = currentManualCity;
+                    } else {
+                        locationAuto.checked = true;
+                        locationManual.checked = false;
+                        manualLocationSection.style.display = 'none';
+                    }
+                    
+                    // Mettre à jour les notifications
+                    if (notificationsEnabled) {
+                        notificationsOn.checked = true;
+                    } else {
+                        notificationsOff.checked = true;
+                    }
+                }
+            }
+
+            // ==================== NOUVELLE FONCTIONNALITÉ : SÉLECTION DE VILLE ====================
+
+            // Ouvrir le sélecteur de villes
+            function openCitySelector() {
+                openModal(cityModal);
+            }
+
+            // Sélectionner une ville
+            function selectCity(cityName) {
+                if (citiesDatabase[cityName]) {
+                    currentManualCity = cityName;
+                    currentLocationType = 'manual';
+                    
+                    // Mettre à jour les paramètres
+                    locationManual.checked = true;
+                    locationAuto.checked = false;
+                    manualLocationSection.style.display = 'block';
+                    settingsCitySelect.value = currentManualCity;
+                    
+                    // Charger la météo pour la nouvelle ville
+                    loadWeather();
+                    
+                    // Sauvegarder les préférences
+                    saveLocationPreferences();
+                    
+                    closeModal(cityModal);
+                }
+            }
+
+            // ==================== FONCTIONS EXISTANTES ====================
 
             // Initialisation des paramètres
             function initializeSettings() {
@@ -2395,561 +2937,6 @@
                 }
             }
 
-            // ==================== FONCTIONS MÉTÉO CORRIGÉES ====================
-
-            // Base de données des villes
-            const citiesDatabase = {
-                "Aix-les-Bains": { 
-                    lat: 45.6886, 
-                    lng: 5.9150,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/aix-les-bains/73100",
-                    region: "Auvergne-Rhône-Alpes"
-                },
-                "Chambéry": { 
-                    lat: 45.5646, 
-                    lng: 5.9178,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/chambery/73000",
-                    region: "Auvergne-Rhône-Alpes"
-                },
-                "Lyon": { 
-                    lat: 45.75, 
-                    lng: 4.85,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/lyon/69000",
-                    region: "Auvergne-Rhône-Alpes"
-                },
-                "Grenoble": { 
-                    lat: 45.1667, 
-                    lng: 5.7167,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/grenoble/38000",
-                    region: "Auvergne-Rhône-Alpes"
-                },
-                "Paris": { 
-                    lat: 48.8566, 
-                    lng: 2.3522,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/paris/75000",
-                    region: "Île-de-France"
-                },
-                "Marseille": { 
-                    lat: 43.2965, 
-                    lng: 5.3698,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/marseille/13000",
-                    region: "Provence-Alpes-Côte d'Azur"
-                },
-                "Bordeaux": { 
-                    lat: 44.8378, 
-                    lng: -0.5792,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/bordeaux/33000",
-                    region: "Nouvelle-Aquitaine"
-                },
-                "Toulouse": { 
-                    lat: 43.6047, 
-                    lng: 1.4442,
-                    meteofrance: "https://meteofrance.com/previsions-meteo-france/toulouse/31000",
-                    region: "Occitanie"
-                }
-            };
-
-            // Récupérer la position de l'utilisateur
-            function getUserLocation() {
-                return new Promise((resolve, reject) => {
-                    if (!navigator.geolocation) {
-                        reject(new Error('Géolocalisation non supportée'));
-                        return;
-                    }
-
-                    navigator.geolocation.getCurrentPosition(
-                        position => {
-                            resolve({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                                type: 'auto'
-                            });
-                        },
-                        error => {
-                            console.error('Erreur géolocalisation:', error);
-                            reject(error);
-                        },
-                        { 
-                            timeout: 10000,
-                            enableHighAccuracy: false,
-                            maximumAge: 300000 // 5 minutes
-                        }
-                    );
-                });
-            }
-
-            // Récupérer les données météo depuis OpenMeteo
-            async function fetchWeatherData(lat, lng) {
-                try {
-                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_min,temperature_2m_max&timezone=auto&forecast_days=1`;
-                    
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Erreur API météo');
-                    
-                    const data = await response.json();
-                    
-                    return {
-                        minTemp: data.daily.temperature_2m_min[0],
-                        maxTemp: data.daily.temperature_2m_max[0],
-                        location: await getLocationName(lat, lng),
-                        coordinates: { lat, lng }
-                    };
-                } catch (error) {
-                    console.error('Erreur récupération météo:', error);
-                    throw error;
-                }
-            }
-
-            // Fonction getLocationName corrigée
-            async function getLocationName(lat, lng) {
-                try {
-                    // Essayer d'abord avec notre base de données de villes
-                    let closestCity = null;
-                    let minDistance = Number.MAX_VALUE;
-
-                    Object.entries(citiesDatabase).forEach(([cityName, coords]) => {
-                        const distance = Math.sqrt(
-                            Math.pow(coords.lat - lat, 2) + Math.pow(coords.lng - lng, 2)
-                        );
-                        // Seuil plus permissif : 1.0 degré au lieu de 0.5
-                        if (distance < minDistance && distance < 1.0) {
-                            minDistance = distance;
-                            closestCity = cityName;
-                        }
-                    });
-
-                    if (closestCity) {
-                        return closestCity;
-                    }
-
-                    // Si pas de ville proche, utiliser un nom générique positif
-                    return "Localisation GPS";
-
-                } catch (error) {
-                    console.error('Erreur géocodage:', error);
-                    return "Localisation GPS";
-                }
-            }
-
-            // Remplir le sélecteur de villes
-            function populateCitySelect() {
-                // Vider le sélecteur
-                settingsCitySelect.innerHTML = '<option value="">Choisir une ville...</option>';
-                
-                // Trier les villes par région puis par nom
-                const sortedCities = Object.keys(citiesDatabase).sort((a, b) => {
-                    if (citiesDatabase[a].region === citiesDatabase[b].region) {
-                        return a.localeCompare(b);
-                    }
-                    return citiesDatabase[a].region.localeCompare(citiesDatabase[b].region);
-                });
-                
-                // Ajouter les villes groupées par région
-                let currentRegion = '';
-                sortedCities.forEach(cityName => {
-                    const city = citiesDatabase[cityName];
-                    
-                    // Ajouter un groupe si la région change
-                    if (city.region !== currentRegion) {
-                        currentRegion = city.region;
-                        const group = document.createElement('optgroup');
-                        group.label = currentRegion;
-                        settingsCitySelect.appendChild(group);
-                    }
-                    
-                    // Ajouter l'option de ville
-                    const option = document.createElement('option');
-                    option.value = cityName;
-                    option.textContent = cityName;
-                    settingsCitySelect.appendChild(option);
-                });
-                
-                // Sélectionner la ville actuelle
-                settingsCitySelect.value = currentManualCity;
-            }
-
-            // Charger et afficher la météo selon le type de localisation
-            async function loadWeather() {
-                showWeatherLoading();
-                
-                try {
-                    let weatherData;
-                    
-                    if (currentLocationType === 'auto') {
-                        // Mode automatique - géolocalisation
-                        const location = await getUserLocation();
-                        weatherData = await fetchWeatherData(location.lat, location.lng);
-                    } else {
-                        // Mode manuel - ville prédéfinie
-                        const cityCoords = citiesDatabase[currentManualCity];
-                        if (!cityCoords) {
-                            throw new Error('Ville non trouvée');
-                        }
-                        weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
-                        // Forcer l'affichage du nom de la ville en mode manuel
-                        weatherData.location = currentManualCity;
-                    }
-                    
-                    currentWeatherData = weatherData;
-                    displayWeatherData(weatherData);
-                    
-                    // Vérifier les températures critiques pour les notifications
-                    checkCriticalTemperature(weatherData.minTemp);
-                    
-                    // Sauvegarder les préférences
-                    saveLocationPreferences();
-                    
-                } catch (error) {
-                    console.error('Erreur chargement météo:', error);
-                    showWeatherError();
-                    
-                    // Essayer de charger la dernière localisation sauvegardée
-                    try {
-                        const lastLocation = localStorage.getItem('lastLocation');
-                        if (lastLocation) {
-                            const location = JSON.parse(lastLocation);
-                            const weatherData = await fetchWeatherData(location.lat, location.lng);
-                            currentWeatherData = weatherData;
-                            displayWeatherData(weatherData);
-                            return;
-                        }
-                    } catch (fallbackError) {
-                        console.error('Erreur fallback:', fallbackError);
-                        // Final fallback: utiliser Aix-les-Bains
-                        await useAixLesBainsAsFallback();
-                    }
-                }
-            }
-
-            // Fonction displayWeatherData corrigée
-            function displayWeatherData(weatherData) {
-                currentMinTemp.textContent = Math.round(weatherData.minTemp);
-                
-                // Afficher le nom de la localisation (même si c'est "Localisation GPS")
-                currentLocation.textContent = weatherData.location;
-                
-                // Mettre à jour le badge de localisation avec une couleur appropriée
-                updateLocationBadgeStyle(weatherData.location);
-                
-                // Activer le bouton d'utilisation
-                useWeatherTempBtn.disabled = false;
-                
-                // Afficher la section météo
-                weatherLoading.style.display = 'none';
-                weatherError.style.display = 'none';
-                currentWeather.style.display = 'flex';
-                
-                // Mettre à jour le lien Météo France
-                updateMeteoFranceLink(weatherData.location);
-                
-                // Sauvegarder la dernière localisation réussie
-                localStorage.setItem('lastLocation', JSON.stringify({
-                    lat: weatherData.coordinates.lat,
-                    lng: weatherData.coordinates.lng,
-                    name: weatherData.location,
-                    timestamp: Date.now()
-                }));
-            }
-
-            // Mettre à jour le lien Météo France
-            function updateMeteoFranceLink(locationName) {
-                if (citiesDatabase[locationName] && citiesDatabase[locationName].meteofrance) {
-                    // Ville reconnue - afficher le lien
-                    meteoFranceUrl.href = citiesDatabase[locationName].meteofrance;
-                    meteoFranceLink.style.display = 'block';
-                } else {
-                    // Ville non reconnue ou "Localisation GPS" - cacher le lien
-                    meteoFranceLink.style.display = 'none';
-                }
-            }
-
-            // Mettre à jour le style du badge de localisation
-            function updateLocationBadgeStyle(locationName) {
-                if (locationName === "Localisation GPS") {
-                    locationBadge.style.background = "rgba(0, 168, 255, 0.2)";
-                    locationBadge.style.borderColor = "rgba(0, 168, 255, 0.4)";
-                    locationBadge.style.color = "var(--weather-blue)";
-                } else {
-                    // Ville reconnue - on peut utiliser une couleur différente si souhaité
-                    locationBadge.style.background = "rgba(0, 210, 211, 0.2)";
-                    locationBadge.style.borderColor = "rgba(0, 210, 211, 0.4)";
-                    locationBadge.style.color = "#00D2D3";
-                }
-            }
-
-            // Afficher le chargement météo
-            function showWeatherLoading() {
-                weatherLoading.style.display = 'flex';
-                currentWeather.style.display = 'none';
-                weatherError.style.display = 'none';
-                useWeatherTempBtn.disabled = true;
-                currentLocation.textContent = 'Chargement...';
-                locationBadge.style.background = "rgba(255, 255, 255, 0.1)";
-                locationBadge.style.borderColor = "var(--netflix-gray)";
-                locationBadge.style.color = "var(--netflix-light-gray)";
-                meteoFranceLink.style.display = 'none';
-            }
-
-            // Afficher l'erreur météo
-            function showWeatherError() {
-                weatherLoading.style.display = 'none';
-                currentWeather.style.display = 'none';
-                weatherError.style.display = 'block';
-                useWeatherTempBtn.disabled = true;
-                currentLocation.textContent = 'Erreur';
-                locationBadge.style.background = "rgba(229, 9, 20, 0.2)";
-                locationBadge.style.borderColor = "rgba(229, 9, 20, 0.4)";
-                locationBadge.style.color = "var(--netflix-red)";
-                meteoFranceLink.style.display = 'none';
-            }
-
-            // Utiliser la température météo
-            function useWeatherTemperature() {
-                if (currentWeatherData && currentWeatherData.minTemp !== null) {
-                    temperatureInput.value = Math.round(currentWeatherData.minTemp);
-                    calculateRecommendation();
-                }
-            }
-
-            // Fonction Fallback
-            async function useAixLesBainsAsFallback() {
-                try {
-                    const cityCoords = citiesDatabase['Aix-les-Bains'];
-                    const weatherData = await fetchWeatherData(cityCoords.lat, cityCoords.lng);
-                    weatherData.location = 'Aix-les-Bains (secours)';
-                    currentWeatherData = weatherData;
-                    displayWeatherData(weatherData);
-                } catch (error) {
-                    // Dernier recours : afficher l'erreur
-                    showWeatherError();
-                }
-            }
-
-            // Sauvegarder les préférences de localisation
-            function saveLocationPreferences() {
-                const preferences = {
-                    locationType: currentLocationType,
-                    manualCity: currentManualCity,
-                    notificationsEnabled: notificationsEnabled,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('locationPreferences', JSON.stringify(preferences));
-            }
-
-            // Charger les préférences de localisation
-            function loadLocationPreferences() {
-                const saved = localStorage.getItem('locationPreferences');
-                if (saved) {
-                    const preferences = JSON.parse(saved);
-                    currentLocationType = preferences.locationType;
-                    currentManualCity = preferences.manualCity || 'Aix-les-Bains';
-                    notificationsEnabled = preferences.notificationsEnabled !== false; // true par défaut
-                    
-                    // Mettre à jour l'interface des paramètres
-                    if (currentLocationType === 'manual') {
-                        locationManual.checked = true;
-                        locationAuto.checked = false;
-                        manualLocationSection.style.display = 'block';
-                        settingsCitySelect.value = currentManualCity;
-                    } else {
-                        locationAuto.checked = true;
-                        locationManual.checked = false;
-                        manualLocationSection.style.display = 'none';
-                    }
-                    
-                    // Mettre à jour les notifications
-                    if (notificationsEnabled) {
-                        notificationsOn.checked = true;
-                    } else {
-                        notificationsOff.checked = true;
-                    }
-                }
-            }
-
-            // ==================== NOUVELLE FONCTIONNALITÉ : SÉLECTION DE VILLE ====================
-
-            // Ouvrir le sélecteur de villes
-            function openCitySelector() {
-                openModal(cityModal);
-            }
-
-            // Sélectionner une ville
-            function selectCity(cityName) {
-                if (citiesDatabase[cityName]) {
-                    currentManualCity = cityName;
-                    currentLocationType = 'manual';
-                    
-                    // Mettre à jour les paramètres
-                    locationManual.checked = true;
-                    locationAuto.checked = false;
-                    manualLocationSection.style.display = 'block';
-                    settingsCitySelect.value = currentManualCity;
-                    
-                    // Charger la météo pour la nouvelle ville
-                    loadWeather();
-                    
-                    // Sauvegarder les préférences
-                    saveLocationPreferences();
-                    
-                    closeModal(cityModal);
-                }
-            }
-
-            // ==================== FONCTIONS EXISTANTES ====================
-
-            // Fonction pour afficher une notification
-            function showNotification(type, title, message, duration = 5000) {
-                if (!notificationsEnabled) return;
-
-                // Vérifier le cooldown pour éviter les notifications répétitives
-                const now = Date.now();
-                if (now - lastNotificationTime < NOTIFICATION_COOLDOWN) {
-                    return;
-                }
-                lastNotificationTime = now;
-
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                
-                let icon = 'fas fa-info-circle';
-                if (type === 'critical') icon = 'fas fa-exclamation-triangle';
-                if (type === 'warning') icon = 'fas fa-exclamation-circle';
-                
-                notification.innerHTML = `
-                    <div class="notification-icon">
-                        <i class="${icon}"></i>
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">${title}</div>
-                        <div class="notification-message">${message}</div>
-                    </div>
-                    <button class="notification-close" aria-label="Fermer la notification">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-
-                notificationContainer.appendChild(notification);
-
-                // Animation d'entrée
-                setTimeout(() => {
-                    notification.classList.add('show');
-                }, 100);
-
-                // Fermeture au clic
-                const closeBtn = notification.querySelector('.notification-close');
-                closeBtn.addEventListener('click', () => {
-                    hideNotification(notification);
-                });
-
-                // Fermeture automatique
-                if (duration > 0) {
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            hideNotification(notification);
-                        }
-                    }, duration);
-                }
-
-                return notification;
-            }
-
-            // Fonction pour masquer une notification
-            function hideNotification(notification) {
-                notification.classList.remove('show');
-                notification.classList.add('hide');
-                
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 400);
-            }
-
-            // Fonction pour vérifier les températures critiques
-            function checkCriticalTemperature(temp) {
-                if (!notificationsEnabled) return;
-
-                const horseName = horseNameElements[0].textContent;
-                
-                if (temp <= -5) {
-                    showNotification(
-                        'critical', 
-                        '🚨 TEMPÉRATURE TRÈS FROIDE', 
-                        `Il fait ${temp}°C cette nuit ! ${horseName} a besoin d'une couverture épaisse et d'une surveillance attentive.`,
-                        8000
-                    );
-                } else if (temp <= -2) {
-                    showNotification(
-                        'warning', 
-                        '⚠️ TEMPÉRATURE FROIDE', 
-                        `Il fait ${temp}°C cette nuit. Pensez à vérifier la couverture de ${horseName}.`,
-                        6000
-                    );
-                } else if (temp >= 15) {
-                    showNotification(
-                        'warning', 
-                        '🌡️ ATTENTION : RISQUE DE SURCHAUFFE', 
-                        `Il fait ${temp}°C cette nuit. ${horseName} risque d'avoir trop chaud avec une couverture.`,
-                        6000
-                    );
-                }
-            }
-
-            // Fonction pour tester les notifications
-            function testNotification() {
-                showNotification(
-                    'info',
-                    '🔔 TEST DE NOTIFICATION',
-                    'Ceci est un test de notification. Les alertes fonctionnent correctement !',
-                    4000
-                );
-            }
-
-            // Fonction pour exporter l'historique en CSV
-            function exportHistoryToCSV() {
-                const history = getHistory();
-                if (history.length === 0) {
-                    alert("L'historique est vide. Aucune donnée à exporter.");
-                    return;
-                }
-
-                // En-têtes CSV
-                const headers = ['Date', 'Heure', 'Température (°C)', 'Recommandation', 'État de la tonte', 'Nom du cheval'];
-                let csvContent = headers.join(';') + '\n';
-
-                // Données
-                history.forEach(entry => {
-                    const date = new Date(entry.date);
-                    const dateStr = date.toLocaleDateString('fr-FR');
-                    const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                    const row = [
-                        dateStr,
-                        timeStr,
-                        entry.temperature.toString().replace('.', ','),
-                        entry.recommendation,
-                        entry.isTondu ? 'Tondu' : 'Non tondu',
-                        entry.horseName || 'Aldo'
-                    ];
-                    csvContent += row.join(';') + '\n';
-                });
-
-                // Créer et télécharger le fichier
-                downloadFile(csvContent, 'historique-couvertures.csv', 'text/csv;charset=utf-8;');
-            }
-
-            // Fonction utilitaire pour télécharger un fichier
-            function downloadFile(content, fileName, contentType) {
-                const blob = new Blob([content], { type: contentType });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }
-
             // Calcul de la recommandation
             function calculateRecommendation() {
                 const temp = parseFloat(temperatureInput.value);
@@ -3035,15 +3022,43 @@
 
             // ==================== ÉVÉNEMENTS ====================
 
-            // Événements PWA
-            pwaInstallBtn.addEventListener('click', installApp);
-            pwaDismissBtn.addEventListener('click', dismissInstallPrompt);
+            // NOUVEAUX ÉVÉNEMENTS : Notifications
+            testNotificationBtn.addEventListener('click', testNotification);
+
+            notificationsOn.addEventListener('change', function() {
+                if (this.checked) {
+                    notificationsEnabled = true;
+                    saveLocationPreferences();
+                    showNotification(
+                        'info',
+                        '🔔 NOTIFICATIONS ACTIVÉES',
+                        'Vous recevrez maintenant des alertes pour les températures critiques.',
+                        4000
+                    );
+                }
+            });
+
+            notificationsOff.addEventListener('change', function() {
+                if (this.checked) {
+                    notificationsEnabled = false;
+                    saveLocationPreferences();
+                    showNotification(
+                        'info',
+                        '🔕 NOTIFICATIONS DÉSACTIVÉES',
+                        'Les alertes température sont maintenant désactivées.',
+                        4000
+                    );
+                }
+            });
+
+            // Événement d'export CSV dans les paramètres
+            exportCsvBtn.addEventListener('click', exportHistoryToCSV);
 
             // Événements météo
             useWeatherTempBtn.addEventListener('click', useWeatherTemperature);
             refreshWeatherBtn.addEventListener('click', loadWeather);
 
-            // Événement : Clic sur le badge de localisation
+            // NOUVEL ÉVÉNEMENT : Clic sur le badge de localisation
             locationBadge.addEventListener('click', openCitySelector);
 
             // Effets visuels pour le badge de localisation
@@ -3090,7 +3105,7 @@
                 }
             });
 
-            // Événement : Changement de ville dans le sélecteur
+            // NOUVEL ÉVÉNEMENT : Changement de ville dans le sélecteur
             settingsCitySelect.addEventListener('change', function() {
                 if (this.value) {
                     currentManualCity = this.value;
@@ -3194,47 +3209,31 @@
                 }
             });
 
-            // Événements notifications
-            testNotificationBtn.addEventListener('click', testNotification);
-
-            notificationsOn.addEventListener('change', function() {
-                if (this.checked) {
-                    notificationsEnabled = true;
-                    saveLocationPreferences();
-                    showNotification(
-                        'info',
-                        '🔔 NOTIFICATIONS ACTIVÉES',
-                        'Vous recevrez maintenant des alertes pour les températures critiques.',
-                        4000
-                    );
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && document.querySelector('.modal-overlay.active')) {
+                    const modal = document.querySelector('.modal-overlay.active');
+                    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    const firstElement = focusableElements[0];
+                    const lastElement = focusableElements[focusableElements.length - 1];
+                    
+                    if (e.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
                 }
             });
-
-            notificationsOff.addEventListener('change', function() {
-                if (this.checked) {
-                    notificationsEnabled = false;
-                    saveLocationPreferences();
-                    showNotification(
-                        'info',
-                        '🔕 NOTIFICATIONS DÉSACTIVÉES',
-                        'Les alertes température sont maintenant désactivées.',
-                        4000
-                    );
-                }
-            });
-
-            // Événement d'export CSV dans les paramètres
-            exportCsvBtn.addEventListener('click', exportHistoryToCSV);
 
             // ==================== INITIALISATION ====================
 
             initializeSettings();
             updateTonteIndicator();
-
-            // Vérifier si on doit montrer l'invite PWA
-            if (!localStorage.getItem('pwaPromptDismissed')) {
-                setTimeout(showInstallPromotion, 5000);
-            }
         });
     </script>
 </body>
